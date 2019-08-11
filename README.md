@@ -133,7 +133,7 @@ Next, find the `[outputs]` section to either replace `"RSS"`, or add `"Atom"` an
 Unfortunately _Hugo Web Feeds_ is unable to automatically help you with  autodiscovery as HTML rendering must be part of the other theme you are using. There is a generic code snippet for you to add to the `layouts/partials/head.html` file or wherever your theme as left a way to add some custom code to the HTML `<head>` element.
 
 ```html
-{{ partial "feed_header.html" }}
+{{ partial "feed_header.html" . }}
 ```
 
 ## Deployment

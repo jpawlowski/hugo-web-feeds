@@ -2,3 +2,11 @@
     translation: "auf"
 -   id: feed_item_summary_readmore
     translation: "Weiterlesen&nbsp;&#8230;"
+-   id: feed_desc_type_atom
+    translation: "Atom/Modernes Feed Format"
+-   id: feed_desc_type_json
+    translation: "JSON/Alternates Feed Format"
+-   id: feed_desc_type_rss
+    translation: "RSS/Altes Feed Format"
+-   id: feed_desc_site_title
+    translation: "Alle Seiteninhalte"

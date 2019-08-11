@@ -2,3 +2,11 @@
     translation: "on"
 -   id: feed_item_summary_readmore
     translation: "Read&nbsp;more&nbsp;&#8230;"
+-   id: feed_desc_type_atom
+    translation: "Atom/Modern feed format"
+-   id: feed_desc_type_json
+    translation: "JSON/Alternate feed format"
+-   id: feed_desc_type_rss
+    translation: "RSS/Legacy feed format"
+-   id: feed_desc_site_title
+    translation: "All site contents"
