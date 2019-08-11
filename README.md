@@ -1,16 +1,21 @@
 # Hugo Enhanced Web Feeds
 
-> Note: A German translation of this description is available [here](https://julian.pawlowski.me/de/projekt/hugo-web-feeds/).
+> Note: A German translation of this description is available [here](https://julian.pawlowski.me/de/docs/hugo-web-feeds/).
 
-This is a **supplementary theme** for other Hugo themes that will help to generate [web feeds](https://en.wikipedia.org/wiki/Web_feed) in the formats [RSS 2.0](https://en.wikipedia.org/wiki/RSS) and [Atom 1.0](https://en.wikipedia.org/wiki/Atom_(Web_standard)) to allow site visitors to subscribe.
+This is a **supplementary theme** for other Hugo themes that will help to generate [web feeds](https://en.wikipedia.org/wiki/Web_feed) in the formats [Atom 1.0](https://en.wikipedia.org/wiki/Atom_(Web_standard)), [RSS 2.0](https://en.wikipedia.org/wiki/RSS) and the fairly new [JSON Feed](https://jsonfeed.org/) to allow site visitors to subscribe to the content you create.
 
 A list of major supported features:
 
 * Full multi-language support
+* Multi-user support with author profile pages, both on site and page level
 * Supports full content and summary, customizable on site and page level
 * Subtitle support
 * Taxonomy support
-* Multiple authors and contributors, both on site and page level
+* Custom URN support for Atom and JSON feed IDs on site and page level
+
+This is what's on the To-Do list right now:
+
+* [WebSub](https://en.wikipedia.org/wiki/WebSub) support
 
 ## Table of Contents
 
@@ -37,7 +42,7 @@ ________________________________________________________________________________
 
 This is today's default format to consume a web feed and should be what you offer to your visitors and readers.
 
-The default file name for Atom feeds is `feed.atom` (also see [`.atom` file extension](https://filext.com/file-extension/ATOM)) and may be adjusted as described in the install section.
+The default file name for Atom feeds is `feed.atom` (also see [`.atom` file extension](https://filext.com/file-extension/ATOM)) and may be adjusted as described at the end of the [install section](#installing).
 
 ### Extended RSS 2.0 Feed (Legacy Feed Format)
 
@@ -48,7 +53,15 @@ That is why this feed type is marked as _legacy_ and shall only be offered as a 
 
 Also note that there are still some important differences between the two formats, in particular when content is being updated or corrected while a user had already downloaded a version of the feed that contained an earlier version of that particular content.
 
-The default file name for RSS feeds is `index.xml` and may be adjusted as described in the install section. It is recommended to use a distinct file extention and rename the file to `feed.rss` (also see [`.rss` file extension](https://filext.com/file-extension/RSS)).
+Using the _Hugo Web Feeds_ theme, the default file name for RSS feeds is automatically changed from `index.xml` to `feed.rss` (also see [`.rss` file extension](https://filext.com/file-extension/RSS)), but may be re-adjusted as described at the end of the [install section](#installing).
+
+### JSON Feed (Experimental Feed Format)
+
+This format came up as an [idea of Manton Reece and Brent Simmons](https://jsonfeed.org/) in 2017 and has seen quite prominent adoption to sites since then.
+
+However, on Wikipedia it is currently only known as "just another type" of [data feeds](https://en.wikipedia.org/wiki/Data_feed) with no relation to be an official [web feed](https://en.wikipedia.org/wiki/Web_feed) format yet. This is why the JSON Feed format is marked as _experimental_ here, especially as visitors need to have a state-of-the-art feed reader that is supporting this brand new format. That is why it cannot be the only format offered without risking to loose interest of visitors to subscribe.
+
+The default file name for Atom feeds is `feed.json` and may be adjusted as described at the end of the [install section](#installing).
 
 ## Getting Started
 
@@ -106,27 +119,35 @@ As this is a supplementary theme, it needs to be processed before all other them
 
 Also note that the variable is now in slice format (see the brackets?). If you had only enabled a single theme before, it might have been a simple `key = "value"` pair so keep that in mind.
 
-Next, find the `[outputs]` section to either replace `"RSS"` or add `"Atom"` to it:
+Next, find the `[outputs]` section to either replace `"RSS"`, or add `"Atom"` and `"JSON Feed"` to it:
 
 ```toml
 [outputs]
-  home     = ["HTML", "RSS", "Atom"]    # optionally remove RSS here
-  section  = ["HTML", "RSS", "Atom"]    # optionally remove RSS here
-  taxonomy = ["HTML", "RSS", "Atom"]    # optionally remove RSS here
+  home     = ["HTML", "RSS", "Atom", "JSON Feed"]    # optionally remove RSS here
+  section  = ["HTML", "RSS", "Atom", "JSON Feed"]    # optionally remove RSS here
+  taxonomy = ["HTML", "RSS", "Atom", "JSON Feed"]    # optionally remove RSS here
 ```
 
-#### Renaming the RSS feed file
+#### Autodiscovery
 
-You can overwrite the Hugo built-in media type and output format defintions so that the resulting file name will be changed from `index.xml` to `feed.rss`.
+Unfortunately _Hugo Web Feeds_ is unable to automatically help you with  autodiscovery as HTML rendering must be part of the other theme you are using. There is a generic code snippet for you to add to the `layouts/partials/head.html` file or wherever your theme as left a way to add some custom code to the HTML `<head>` element.
 
-Add this to the bottom part of your site's `config.toml` file:
+```html
+{{ partial "feed_header.html" }}
+```
+
+#### Renaming the feed file names
+
+You can re-adjust the output format presets of _Hugo Web Feeds_ as desired.
+
+For example, if for whatever reason you would like to enforce using the originally built-in file name `index.xml` that Hugo comes with instead of `feed.rss`, you may add this code snippet to the bottom part of your site's `config.toml` file:
 
 ```toml
-[mediaTypes."application/rss+xml"]         # overwrite existing built-in definitions
-    suffixes      = ["rss"]                # use .rss file extension
-[outputFormats.RSS]                        # overwrite existing built-in definitions
+[mediaTypes."application/rss+xml"]         # overrule definitions from Hugo Web Feeds
+    suffixes      = ["xml"]                # use .xml file extension
+[outputFormats.RSS]                        # overrule definitions from Hugo Web Feeds
     mediaType     = "application/rss+xml"
-    baseName      = "feed"                 # use 'feed' as file name base
+    baseName      = "index"                # use 'index' as file name base
     isPlainText   = false
     rel           = "alternate"
     isHTML        = false
@@ -134,10 +155,7 @@ Add this to the bottom part of your site's `config.toml` file:
     permalinkable = false
 ```
 
-This will help you when tuning your web server as described down below under [Web Server Configuration](#web-server-configuration).
-
-Besides the web server, I am not aware of any _client_ software on the visitor's device that makes immediate use of the file extension name in order to derive the format of the file content from it.
-However, you never know so it is good that we have now configured the file extension according to the [registered information](https://filext.com/file-extension/RSS).
+Note that using a proper file extension will help you when tuning your web server as described down below under [Web Server Configuration](#web-server-configuration) or even makes this obsolete. Overruling the default settings of _Hugo Web Feeds_ should be done with care.
 
 ## Deployment
 
@@ -163,6 +181,12 @@ RSS feeds will need to be sent using this `Content-Type:`:
 
 ```http
 Content-Type: application/rss+xml; charset=UTF-8
+```
+
+JSON feeds will likely be okay already as they are no different from other JSON files using this `Content-Type:`:
+
+```http
+Content-Type: application/json; charset=UTF-8
 ```
 
 If this does not look exactly like this (even if the [`charset` setting](https://www.w3.org/International/articles/http-charset/) was missing), you will need to tweak the configuration of your web server. This depends on the software you use. Some examples and hints can be found below.
@@ -227,6 +251,6 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ## Acknowledgments
 
-* [Kaushal Modi](https://github.com/kaushalmodi) for teaching me about Hugo and Go programming syntax and sharing ideas.
-* [George Cushen](https://github.com/gcushen) for his initial inspiration as part of his awesome [Academic theme](https://github.com/gcushen/hugo-academic)
-* [Billie Thompson](https://github.com/PurpleBooth) for her idea to provide a great [template](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2) and structure for this README file
+* Thank [Kaushal Modi](https://github.com/kaushalmodi) for teaching me about Hugo and Go programming syntax and sharing ideas.
+* Thank [George Cushen](https://github.com/gcushen) for his initial inspiration as part of his awesome [Academic theme](https://github.com/gcushen/hugo-academic)
+* Thank [Billie Thompson](https://github.com/PurpleBooth) for her idea to provide a great [template](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2) and structure for this README file

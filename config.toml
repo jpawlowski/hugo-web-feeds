@@ -1,19 +1,35 @@
-# Atom feed
-# Add "ATOM" to the Page Kinds under [outputs] (in your site config) for which
-# you want to enable Atom feeds.
-# Example:
-#   [outputs]
-#     home = ["HTML", "ATOM"]
-# https://gist.github.com/lpar/7ded35d8f52fef7490a5be92e6cd6937
+[mediaTypes."application/rss+xml"]         # overwrite existing built-in definitions
+    suffixes      = ["rss"]                # use .rss file extension
+[outputFormats.RSS]                        # overwrite existing built-in definitions
+    # https://cyber.harvard.edu/rss/rss.html | http://www.rssboard.org/
+    mediaType     = "application/rss+xml"
+    baseName      = "feed"                 # generated file = <baseName>.<mediaType."application/atom+xml".suffixes[0]> = feed.rss
+    isPlainText   = false
+    rel           = "alternate"
+    isHTML        = false
+    noUgly        = true
+    permalinkable = false
+
 [mediaTypes."application/atom+xml"]
-  suffixes = ["xml"]
+    suffixes      = ["atom"]
 [outputFormats.Atom]
-  # https://validator.w3.org/feed/docs/atom.html#whatIsAtom
-  name = "Atom"
-  mediaType = "application/atom+xml"
-  baseName = "atom" # generated file = <baseName>.<mediaType."application/atom+xml".suffixes[0]> = atom.xml
-  isPlainText = false
-  rel = "alternate"
-  isHTML = false
-  noUgly = true
-  permalinkable = false
+    # https://tools.ietf.org/html/rfc4287
+    name          = "Atom"
+    mediaType     = "application/atom+xml"
+    baseName      = "feed" # generated file = <baseName>.<mediaType."application/atom+xml".suffixes[0]> = feed.atom
+    isPlainText   = false
+    rel           = "alternate"
+    isHTML        = false
+    noUgly        = true
+    permalinkable = false
+
+[outputFormats."JSON Feed"]
+    # https://jsonfeed.org/
+    name          = "JSON Feed"
+    mediaType     = "application/json"
+    baseName      = "feed" # generated file = <baseName>.<mediaType."application/json".suffixes[0]> = feed.json
+    isPlainText   = false
+    rel           = "alternate"
+    isHTML        = false
+    noUgly        = true
+    permalinkable = false
