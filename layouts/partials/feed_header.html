@@ -1,22 +1,47 @@
+{{ if not .IsHome }}
+    {{- with .OutputFormats.Get "Atom" }}
+        {{ printf "<link href=%q rel=\"alternate\" type=%q title=\"Section (Atom/Modern feed format)\" />" .Permalink .MediaType | safeHTML }}
+    {{- end -}}
+    {{- with .OutputFormats.Get "JSONFeed" }}
+        {{ printf "<link href=%q rel=\"alternate\" type=%q title=\"Section (JSON/Alternate feed format)\" />" .Permalink .MediaType | safeHTML }}
+    {{- end -}}
+    {{- with .OutputFormats.Get "RSS" }}
+        {{ printf "<link href=%q rel=\"alternate\" type=%q title=\"Section (RSS/Legacy feed format)\" />" .Permalink .MediaType | safeHTML }}
+    {{- end -}}
+    {{ range .Translations }}
+        {{- $lang := .Lang -}}
+        {{- $langstr := index site.Data.i18n.languages .Lang -}}
+        {{- with .OutputFormats.Get "Atom" }}
+            {{ printf "<link href=%q rel=\"alternate\" type=%q hreflang=%q title=\"[%s] Section (Atom/Modern feed format)\" />" .Permalink .MediaType $lang $langstr | safeHTML }}
+        {{- end -}}
+        {{- with .OutputFormats.Get "JSONFeed" }}
+            {{ printf "<link href=%q rel=\"alternate\" type=%q hreflang=%q title=\"[%s] Section (JSON/Alternate feed format)\" />" .Permalink .MediaType $lang $langstr | safeHTML }}
+        {{- end -}}
+        {{- with .OutputFormats.Get "RSS" }}
+            {{ printf "<link href=%q rel=\"alternate\" type=%q hreflang=%q title=\"[%s] Section (RSS/Legacy feed format)\" />" .Permalink .MediaType $lang $langstr | safeHTML }}
+        {{ end -}}
+    {{ end -}}
+{{ end -}}
+
 {{- with .OutputFormats.Get "Atom" }}
-    {{ printf "<link href=%q rel=\"alternate\" type=%q title=\"Section (Atom/Modern feed format)\" />" .Permalink .MediaType | safeHTML }}
+    {{ printf "<link href=%q rel=\"alternate\" type=%q title=\"All contents (Atom/Modern feed format)\" />" ('feed.atom' | absLangURL) .MediaType | safeHTML }}
 {{- end -}}
-{{- with .OutputFormats.Get "JSON Feed" }}
-    {{ printf "<link href=%q rel=\"alternate\" type=%q title=\"Section (JSON/Experimental feed format)\" />" .Permalink .MediaType | safeHTML }}
+{{- with .OutputFormats.Get "JSONFeed" }}
+    {{ printf "<link href=%q rel=\"alternate\" type=%q title=\"All contents (JSON/Alternate feed format)\" />" ('feed.json' | absLangURL) .MediaType | safeHTML }}
 {{- end -}}
 {{- with .OutputFormats.Get "RSS" }}
-    {{ printf "<link href=%q rel=\"alternate\" type=%q title=\"Section (RSS/Legacy feed format)\" />" .Permalink .MediaType | safeHTML }}
+    {{ printf "<link href=%q rel=\"alternate\" type=%q title=\"All contents (RSS/Legacy feed format)\" />" ('feed.rss' | absLangURL) .MediaType | safeHTML }}
 {{- end -}}
-{{ range .Translations }}
+    {{ range .Translations }}
     {{- $lang := .Lang -}}
     {{- $langstr := index site.Data.i18n.languages .Lang -}}
     {{- with .OutputFormats.Get "Atom" }}
-        {{ printf "<link href=%q rel=\"alternate\" type=%q hreflang=%q title=\"[%s] Section (Atom/Modern feed format)\" />" .Permalink .MediaType $lang $langstr | safeHTML }}
+        {{ printf "<link href=%q rel=\"alternate\" type=%q hreflang=%q title=\"[%s] All contents (Atom/Modern feed format)\" />" ('feed.atom' | absLangURL) .MediaType $lang $langstr | safeHTML }}
     {{- end -}}
-    {{- with .OutputFormats.Get "JSON Feed" }}
-        {{ printf "<link href=%q rel=\"alternate\" type=%q hreflang=%q title=\"[%s] Section (JSON/Experimental feed format)\" />" .Permalink .MediaType $lang $langstr | safeHTML }}
+    {{- with .OutputFormats.Get "JSONFeed" }}
+        {{ printf "<link href=%q rel=\"alternate\" type=%q hreflang=%q title=\"[%s] All contents (JSON/Alternate feed format)\" />" ('feed.json' | absLangURL) .MediaType $lang $langstr | safeHTML }}
     {{- end -}}
     {{- with .OutputFormats.Get "RSS" }}
-        {{ printf "<link href=%q rel=\"alternate\" type=%q hreflang=%q title=\"[%s] Section (RSS/Legacy feed format)\" />" .Permalink .MediaType $lang $langstr | safeHTML }}
+        {{ printf "<link href=%q rel=\"alternate\" type=%q hreflang=%q title=\"[%s] All contents (RSS/Legacy feed format)\" />" ('feed.rss' | absLangURL) .MediaType $lang $langstr | safeHTML }}
     {{ end -}}
 {{ end -}}
