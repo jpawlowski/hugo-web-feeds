@@ -23,9 +23,9 @@
     noUgly        = true
     permalinkable = false
 
-[outputFormats."JSON Feed"]
+[outputFormats.JSONFeed]
     # https://jsonfeed.org/
-    name          = "JSON Feed"
+    name          = "JSONFeed"
     mediaType     = "application/json"
     baseName      = "feed" # generated file = <baseName>.<mediaType."application/json".suffixes[0]> = feed.json
     isPlainText   = false
