@@ -240,8 +240,8 @@ For all the branches available, see the [branches on this repository](https://gi
 
 ## Authors
 
+* **Julian Pawlowski** - *Several extensions and enhancements, RSS 2.0 and JSON Feed adoption* - [hugo-web-feeds](https://github.com/jpawlowski/hugo-web-feeds)
 * **Kaushal Modi** - *Initial work for standalone Atom feed* - [hugo-atom-feed](https://github.com/kaushalmodi/hugo-atom-feed)
-* **Julian Pawlowski** - *Several extensions and enhancements, RSS 2.0 adoption* - [hugo-web-feeds](https://github.com/jpawlowski/hugo-web-feeds)
 
 See also the list of [other contributors](https://github.com/jpawlowski/hugo-web-feeds/contributors) who participated in this project.
 
