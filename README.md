@@ -2,7 +2,7 @@
 
 > Note: A German translation of this description is available [here](https://julian.pawlowski.me/de/docs/hugo-web-feeds/).
 
-This is a **supplementary theme** for other Hugo themes that will help to generate [web feeds](https://en.wikipedia.org/wiki/Web_feed) in the formats [Atom 1.0](https://en.wikipedia.org/wiki/Atom_(Web_standard)), [RSS 2.0](https://en.wikipedia.org/wiki/RSS) and the fairly new [JSON Feed](https://jsonfeed.org/) to allow site visitors to subscribe to the content you create.
+This is a **supplementary theme** for other Hugo themes that will help to generate [web feeds](https://en.wikipedia.org/wiki/Web_feed) in the formats [Atom](https://en.wikipedia.org/wiki/Atom_(Web_standard)), [RSS 2.0](https://en.wikipedia.org/wiki/RSS) and the fairly new [JSON Feed](https://jsonfeed.org/) to allow site visitors to subscribe to the content you create.
 
 A list of major supported features:
 
@@ -44,6 +44,14 @@ This is today's default format to consume a web feed and should be what you offe
 
 The default file name for Atom feeds is `feed.atom` (also see [`.atom` file extension](https://filext.com/file-extension/ATOM)).
 
+### JSON Feed (Alternative Feed Format)
+
+This format came up as an [idea of Manton Reece and Brent Simmons](https://jsonfeed.org/) in 2017 and has seen quite prominent adoption to sites since then.
+
+However, on Wikipedia it is currently only known as "just another type" of [data feeds](https://en.wikipedia.org/wiki/Data_feed) with no relation to be an official [web feed](https://en.wikipedia.org/wiki/Web_feed) format yet. This is why the JSON Feed format is marked as _experimental_ here, especially as visitors need to have a state-of-the-art feed reader that is supporting this brand new format. That is why it cannot be the only format offered without risking to loose interest of visitors to subscribe.
+
+The default file name for JSON Feed files is `feed.json`.
+
 ### Extended RSS 2.0 Feed (Legacy Feed Format)
 
 The RSS 2.0 feed will replace the Hugo built-in RSS feed and is extended using several commonly used [XML namespaces](https://en.wikipedia.org/wiki/XML_namespace) for enhanced functionality that is almost similar to what an Atom 1.0 feed provides.
@@ -54,14 +62,6 @@ That is why this feed type is marked as _legacy_ and shall only be offered as a 
 Also note that there are still some important differences between the two formats, in particular when content is being updated or corrected while a user had already downloaded a version of the feed that contained an earlier version of that particular content.
 
 Using the _Hugo Web Feeds_ theme, the default file name for RSS feeds is automatically changed from `index.xml` to `feed.rss` (also see [`.rss` file extension](https://filext.com/file-extension/RSS)).
-
-### JSON Feed (Experimental Feed Format)
-
-This format came up as an [idea of Manton Reece and Brent Simmons](https://jsonfeed.org/) in 2017 and has seen quite prominent adoption to sites since then.
-
-However, on Wikipedia it is currently only known as "just another type" of [data feeds](https://en.wikipedia.org/wiki/Data_feed) with no relation to be an official [web feed](https://en.wikipedia.org/wiki/Web_feed) format yet. This is why the JSON Feed format is marked as _experimental_ here, especially as visitors need to have a state-of-the-art feed reader that is supporting this brand new format. That is why it cannot be the only format offered without risking to loose interest of visitors to subscribe.
-
-The default file name for JSON Feed files is `feed.json`.
 
 ## Getting Started
 
@@ -119,18 +119,18 @@ As this is a supplementary theme, it needs to be processed before all other them
 
 Also note that the variable is now in slice format (see the brackets?). If you had only enabled a single theme before, it might have been a simple `key = "value"` pair so keep that in mind.
 
-Next, find the `[outputs]` section to either replace `"RSS"`, or add `"Atom"` and `"JSON Feed"` to it:
+Next, find the `[outputs]` section to either replace `"RSS"`, or add `"Atom"` and `"JSONFeed"` to it:
 
 ```toml
 [outputs]
-  home     = ["HTML", "RSS", "Atom", "JSON Feed"]    # optionally remove RSS here
-  section  = ["HTML", "RSS", "Atom", "JSON Feed"]    # optionally remove RSS here
-  taxonomy = ["HTML", "RSS", "Atom", "JSON Feed"]    # optionally remove RSS here
+  home     = ["HTML", "RSS", "Atom", "JSONFeed"]    # optionally remove RSS here
+  section  = ["HTML", "RSS", "Atom", "JSONFeed"]    # optionally remove RSS here
+  taxonomy = ["HTML", "RSS", "Atom", "JSONFeed"]    # optionally remove RSS here
 ```
 
 #### Autodiscovery
 
-Unfortunately _Hugo Web Feeds_ is unable to automatically help you with  autodiscovery as HTML rendering must be part of the other theme you are using. There is a generic code snippet for you to add to the `layouts/partials/head.html` file or wherever your theme as left a way to add some custom code to the HTML `<head>` element.
+Unfortunately _Hugo Web Feeds_ is unable to automatically help you with autodiscovery as HTML rendering must be part of the other theme you are using. There is a generic code snippet for you to add to the `layouts/partials/head.html` file or wherever your theme as left a way to add some custom code to the HTML `<head>` element.
 
 ```html
 {{ partial "feed_header.html" . }}
