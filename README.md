@@ -42,7 +42,7 @@ ________________________________________________________________________________
 
 This is today's default format to consume a web feed and should be what you offer to your visitors and readers.
 
-The default file name for Atom feeds is `feed.atom` (also see [`.atom` file extension](https://filext.com/file-extension/ATOM)) and may be adjusted as described at the end of the [install section](#installing).
+The default file name for Atom feeds is `feed.atom` (also see [`.atom` file extension](https://filext.com/file-extension/ATOM)).
 
 ### Extended RSS 2.0 Feed (Legacy Feed Format)
 
@@ -53,7 +53,7 @@ That is why this feed type is marked as _legacy_ and shall only be offered as a 
 
 Also note that there are still some important differences between the two formats, in particular when content is being updated or corrected while a user had already downloaded a version of the feed that contained an earlier version of that particular content.
 
-Using the _Hugo Web Feeds_ theme, the default file name for RSS feeds is automatically changed from `index.xml` to `feed.rss` (also see [`.rss` file extension](https://filext.com/file-extension/RSS)), but may be re-adjusted as described at the end of the [install section](#installing).
+Using the _Hugo Web Feeds_ theme, the default file name for RSS feeds is automatically changed from `index.xml` to `feed.rss` (also see [`.rss` file extension](https://filext.com/file-extension/RSS)).
 
 ### JSON Feed (Experimental Feed Format)
 
@@ -61,7 +61,7 @@ This format came up as an [idea of Manton Reece and Brent Simmons](https://jsonf
 
 However, on Wikipedia it is currently only known as "just another type" of [data feeds](https://en.wikipedia.org/wiki/Data_feed) with no relation to be an official [web feed](https://en.wikipedia.org/wiki/Web_feed) format yet. This is why the JSON Feed format is marked as _experimental_ here, especially as visitors need to have a state-of-the-art feed reader that is supporting this brand new format. That is why it cannot be the only format offered without risking to loose interest of visitors to subscribe.
 
-The default file name for Atom feeds is `feed.json` and may be adjusted as described at the end of the [install section](#installing).
+The default file name for JSON Feed files is `feed.json`.
 
 ## Getting Started
 
@@ -135,27 +135,6 @@ Unfortunately _Hugo Web Feeds_ is unable to automatically help you with  autodis
 ```html
 {{ partial "feed_header.html" }}
 ```
-
-#### Renaming the feed file names
-
-You can re-adjust the output format presets of _Hugo Web Feeds_ as desired.
-
-For example, if for whatever reason you would like to enforce using the originally built-in file name `index.xml` that Hugo comes with instead of `feed.rss`, you may add this code snippet to the bottom part of your site's `config.toml` file:
-
-```toml
-[mediaTypes."application/rss+xml"]         # overrule definitions from Hugo Web Feeds
-    suffixes      = ["xml"]                # use .xml file extension
-[outputFormats.RSS]                        # overrule definitions from Hugo Web Feeds
-    mediaType     = "application/rss+xml"
-    baseName      = "index"                # use 'index' as file name base
-    isPlainText   = false
-    rel           = "alternate"
-    isHTML        = false
-    noUgly        = true
-    permalinkable = false
-```
-
-Note that using a proper file extension will help you when tuning your web server as described down below under [Web Server Configuration](#web-server-configuration) or even makes this obsolete. Overruling the default settings of _Hugo Web Feeds_ should be done with care.
 
 ## Deployment
 
