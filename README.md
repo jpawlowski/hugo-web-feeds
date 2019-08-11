@@ -1,6 +1,7 @@
 # Hugo Enhanced Web Feeds
 
 > Note: A German translation of this description is available [here](https://julian.pawlowski.me/de/docs/hugo-web-feeds/).
+> Hinweis: Eine deutsche Übersetzung dieser Beschreibung ist [hier](https://julian.pawlowski.me/de/docs/hugo-web-feeds/) verfügbar.
 
 This is a **supplementary theme** for other Hugo themes that will help to generate [web feeds](https://en.wikipedia.org/wiki/Web_feed) in the formats [Atom](https://en.wikipedia.org/wiki/Atom_(Web_standard)), [RSS 2.0](https://en.wikipedia.org/wiki/RSS) and the fairly new [JSON Feed](https://jsonfeed.org/) to allow site visitors to subscribe to the content you create.
 
