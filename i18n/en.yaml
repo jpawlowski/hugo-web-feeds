@@ -1,2 +1,4 @@
 -   id: feed_title_on
     translation: "on"
+-   id: feed_item_summary_readmore
+    translation: "Read&nbsp;more&nbsp;&#8230;"
