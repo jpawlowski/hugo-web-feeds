@@ -5,7 +5,7 @@
 -   id: feed_desc_type_atom
     translation: "Atom/Modernes Feed Format"
 -   id: feed_desc_type_json
-    translation: "JSON/Alternates Feed Format"
+    translation: "JSON/Alternatives Feed Format"
 -   id: feed_desc_type_rss
     translation: "RSS/Altes Feed Format"
 -   id: feed_desc_site_title
