@@ -13,7 +13,7 @@
         {{ $title = printf "%s (%s)" $title (.Language.LanguageName | default (.Lang | upper)) }}
     {{- end -}}
     {{ printf `<title type="html"><![CDATA[%s]]></title>` $title | safeHTML }}
-    {{ with (or (.Param "subtitle") (.Param "tagline")) }}
+    {{ with (or (.Param "description") (.Param "subtitle") (.Param "tagline")) }}
         {{ printf `<subtitle type="html"><![CDATA[%s]]></subtitle>` . | safeHTML }}
     {{ end }}
     {{ $output_formats := .OutputFormats }}
@@ -47,7 +47,7 @@
         {{- end }}
 
         {{/* For this to work, the $logo file should be present in the assets/ directory */}}
-        {{- $logo := .logo | default "logo.svg" -}}
+        {{- $logo := .logo | default (.logo_square | default "logo.svg") -}}
         {{- with resources.Get $logo -}}
             <logo>{{ (. | fingerprint).Permalink }}</logo>
         {{- end }}
@@ -237,11 +237,7 @@
             {{- range first 5 (site.RegularPages.Related .) }}
                 <link href="{{ .Permalink }}?utm_source=atom_feed" rel="related" type="text/html" title="{{ .Title }}" />
             {{- end }}
-            {{ with .Params.id }}
-                <id>{{ . | plainify }}</id>
-            {{ else }}
-                <id>{{ .Permalink }}</id>
-            {{ end }}
+            <id>urn:uuid:{{ .UniqueID }}</id>
             {{ $authors := "" }}
             {{ with .Params.author }}
                 {{ $authors = . }}

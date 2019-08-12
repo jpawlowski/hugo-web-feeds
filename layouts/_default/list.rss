@@ -16,7 +16,7 @@
             {{ $title = printf "%s (%s)" $title (index site.Data.i18n.languages .Lang) }}
         {{- end -}}
         <title>{{ printf `%s` $title | html }}</title>
-        {{ with (or (.Param "subtitle") (.Param "tagline")) }}
+        {{ with (or (.Param "description") (.Param "subtitle") (.Param "tagline")) }}
             <description>{{ printf `%s` . | html }}</description>
         {{ end }}
         <link>{{ .Permalink }}</link>
@@ -45,7 +45,7 @@
         {{- end }}
         {{ with .Param "feed" }}
             {{/* For this to work, the $logo file should be present in the assets/ directory */}}
-            {{- $logo := .logo | default "logo.svg" -}}
+            {{- $logo := .logo | default (.logo_square | default "logo.svg") -}}
             {{- with resources.Get $logo -}}
                 <image>
                     <link>{{ $.Permalink }}</link>
@@ -85,11 +85,7 @@
                 {{- range first 5 (site.RegularPages.Related .) }}
                     <atom:link href="{{ .Permalink }}?utm_source=rss_feed" rel="related" type="text/html" title="{{ .Title }}" />
                 {{- end }}
-                {{ with .Params.id }}
-                    <guid isPermaLink="false">{{ . | plainify }}</guid>
-                {{ else }}
-                    <guid>{{ .Permalink }}</guid>
-                {{ end }}
+                <guid isPermaLink="false">urn:uuid:{{ .UniqueID }}</guid>
                 {{ with .Params.author -}}
                     {{- range . -}} <!-- Assuming the author front-matter to be a list -->
                         {{ if .email -}}

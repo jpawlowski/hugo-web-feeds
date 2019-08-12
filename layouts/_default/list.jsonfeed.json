@@ -1,41 +1,164 @@
-{{ $list := .Data.Pages -}}
-{{ $length := (len $list) -}}
 {
-    "version" : "https://jsonfeed.org/version/1",
-    "title" : "{{ if eq  .Title  .Site.Title }}{{ .Site.Title }}{{ else }}{{ with .Title }}{{ . }} {{ i18n "string_on" }} {{ end }}{{ .Site.Title }}{{ end }}",
-    "description": "{{ i18n "string_recent_content" }} {{ if ne  .Title  .Site.Title }}{{ with .Title }}{{ i18n "string_in" }} {{ . }} {{ end }}{{ end }}{{ i18n "string_on" }} {{ .Site.Title }}",
-    "home_page_url" : "{{ .Site.BaseURL }}",
-    {{ with .OutputFormats.Get "JSON" -}}
-    "feed_url" : "{{ .Permalink }}",
-    {{ end -}}
-    {{ with $.Param "icon" -}}
-    "icon" : "{{ . | absURL }}",
-    {{ end -}}
-    {{ with $.Param "favicon" -}}
-    "favicon" : "{{ . | absURL }}",
-    {{ end -}}
-    {{ with .Site.Author.name -}}
-    "author" : {
-        "name" : "{{ . }}"{{ with $.Site.Author.url }},
-        "url": "{{ . }}"{{ end }}{{ with $.Site.Author.avatar }},
-        "avatar": "{{ . | absURL }}"{{ end }}
-    },
-    {{ end -}}
-    "items" : [
-    {{ range $index, $element := $list -}}
-    {
-        "title" : {{ .Title | jsonify }},
-        "date_published" : "{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}",
-        "date_modified" : "{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}",
-        "id" : "{{ .Permalink }}",
-        "url" : "{{ .Permalink }}",
-        {{ with .Params.author -}}
-        "author" : {
-          "name" : "{{ . }}"
-        },
-        {{ end -}}
-        "content_html" : {{ .Content | jsonify }}
-    }{{ if ne (add $index 1) $length }},{{ end }}
-    {{ end -}}
-    ]
+    "version": "https://jsonfeed.org/version/1",
+    "user_comment": "This feed allows you to read the posts from this site in any feed reader that supports the JSON Feed format. To add this feed to your reader, copy the following URL — https://example.org/feed.json — and add it your reader.",
+    {{- $title := site.Title -}}
+    {{- with .Title -}}
+        {{- if (not (eq . site.Title)) -}}
+            {{ $title = printf `%s %s %s` . (i18n "feed_title_on" | default "on") site.Title }}
+        {{- end -}}
+    {{- end -}}
+    {{- if .IsTranslated }}
+        {{ $title = printf "%s (%s)" $title (.Language.LanguageName | default (.Lang | upper)) }}
+    {{- end -}}
+    {{ printf `"title": %q,` $title | safeHTML }}
+    {{ with (or (.Param "description") (.Param "subtitle") (.Param "tagline")) }}
+        {{- printf `"description": %q,` . | safeHTML -}}
+    {{ end }}
+    "home_page_url": "{{ .Permalink }}",
+    {{- with .OutputFormats.Get "JSONFeed" }}
+        "feed_url": "{{ .Permalink }}",
+    {{- end -}}
+    {{ with .Param "feed" }}
+        {{/* For this to work, the $icon file should be present in the assets/ directory */}}
+        {{- $icon := .icon | default "icon.svg" -}}
+        {{- with resources.Get $icon -}}
+            "favicon": "{{ (. | fingerprint).Permalink }}",
+        {{- end }}
+
+        {{/* For this to work, the $logo file should be present in the assets/ directory */}}
+        {{- $logo := .logo_square | default (.logo | default "logo_square.svg") -}}
+        {{- with resources.Get $logo -}}
+            "icon": "{{ (. | fingerprint).Permalink }}",
+        {{- end }}
+    {{ end }}
+    {{ if site.Author.name }} <!-- this is a single author map -->
+        {{ with site.Author }}
+            {{- $author := site.GetPage (printf "/%s/%s" "authors" .name) }}
+            "author": {
+                {{- with $author.Params.name }} <!-- use author name from profile page if found -->
+                    "name": "{{ . | plainify }}"
+                {{- else -}}
+                    "name": "{{ .name | plainify }}"
+                {{- end -}}
+                {{- with .uri }} <!-- explicitly overwrite uri -->
+                   , "url": "{{ . | safeHTML }}"
+                {{- else }}
+                    {{ with $author }}
+                        {{- with .Params.uri }} <!-- use different author uri from profile page if found -->
+                           , "url": "{{ . | safeHTML }}"
+                        {{- else }} <!-- link to profile page -->
+                           , "url": "{{ .Permalink }}"
+                        {{- end -}}
+                    {{- end -}}
+                {{- end -}}
+                {{ with $author }} <!-- search for avatar -->
+                    {{ $avatar := (.Resources.ByType "image").GetMatch "*avatar*" }}
+                    {{ if and site.Params.gravatar .Params.email }}
+                        , "avatar": "https://s.gravatar.com/avatar/{{ md5 .Params.email }}?s=200"
+                    {{ else if $avatar }}
+                        {{ $avatar_image := $avatar.Fill "512x512 Center" }}
+                        , "avatar": "{{ $avatar_image.RelPermalink }}"
+                    {{ end }}
+                {{- end -}}
+            },
+        {{- end -}}
+    {{ else if site.Author }} <!-- this is a multi author map -->
+        "author": [
+        {{ $i := false }}
+        {{ range $elem_index, $elem_val := site.Author }}
+            {{- $name := .name | default $elem_index }}
+            {{- $author := site.GetPage (printf "/%s/%s" "authors" $name) }}
+            {{ if $i }}, {{ end }}
+            {
+                {{- with $author.Params.name }} <!-- use author name from profile page if found -->
+                    "name": "{{ . | plainify }}"
+                {{- else -}}
+                    "name": "{{ $name | plainify }}"
+                {{- end -}}
+                {{- with .uri }} <!-- explicitly overwrite uri -->
+                    , "url": "{{ . | safeHTML }}"
+                {{- else }}
+                    {{ with $author }}
+                        {{- with .Params.uri }} <!-- use different author uri from profile page if found -->
+                            , "url": "{{ . | safeHTML }}"
+                        {{- else }} <!-- link to profile page -->
+                            , "url": "{{ .Permalink }}"
+                        {{- end -}}
+                    {{- end -}}
+                {{- end -}}
+                {{ with $author }} <!-- search for avatar -->
+                    {{ $avatar := (.Resources.ByType "image").GetMatch "*avatar*" }}
+                    {{ if and site.Params.gravatar .Params.email }}
+                        , "avatar": "https://s.gravatar.com/avatar/{{ md5 .Params.email }}?s=200"
+                    {{ else if $avatar }}
+                        {{ $avatar_image := $avatar.Fill "512x512 Center" }}
+                        , "avatar": "{{ $avatar_image.RelPermalink }}"
+                    {{ end }}
+                {{- end -}}
+            }
+            {{ $i = true }}
+        {{ end }}
+        ],
+    {{ end }}
+    "items": 
+        {{- $index := slice -}}
+        {{- $limit := (cond (le site.Config.Services.RSS.Limit 0) 65536 site.Config.Services.RSS.Limit) }}
+        {{- $feed_sections := site.Params.feedSections | default site.Params.mainSections -}}
+        {{/* Range through only the pages with a Type in $feed_sections. */}}
+        {{- $pages := where .Pages "Type" "in" $feed_sections -}}
+        {{/* Remove the pages that have the disable_feed parameter set to true. */}}
+        {{- $pages = where $pages ".Params.disable_feed" "!=" true -}}
+        {{- range first $limit $pages -}}
+            {{- /* Do not index drafts or private pages. */ -}}
+            {{- if and (not .Draft) (not .Params.private) -}}
+                {{- /* Generate page description. */ -}}
+                {{- $desc := "" -}}
+                {{- if .Params.summary -}}
+                {{- $desc = .Params.summary -}}
+                {{- else if .Params.abstract -}}
+                {{- $desc = .Params.abstract -}}
+                {{- else -}}
+                {{- $desc = .Summary -}}
+                {{- end -}}
+
+                {{- $authors := .Params.authors -}}
+                {{- $title := .Title}}
+                {{- $rel_permalink := .RelPermalink -}}
+                {{- $permalink := .Permalink -}}
+
+                {{/* Correct the title and URL for author profile pages. */}}
+                {{- if eq .Section "authors" -}}
+                {{- $title = .Params.name -}}
+                {{- $username := path.Base (path.Split .Path).Dir -}}
+                {{- with site.GetPage (printf "/authors/%s" $username) -}}
+                    {{- $permalink = .Permalink -}}
+                    {{- $rel_permalink = .RelPermalink -}}
+                {{- end -}}
+                {{- else -}}
+                {{/* Include a user's display name rather than username where possible. */}}
+                {{- if .Params.authors -}}
+                    {{- $authorLen := len .Params.authors -}}
+                    {{- if gt $authorLen 0 -}}
+                    {{- $authors = slice -}}
+                        {{- range $k, $v := .Params.authors -}}
+                        {{- $person_page_path := (printf "/authors/%s" (urlize $v)) -}}
+                        {{- $person_page := site.GetPage $person_page_path -}}
+                        {{- if and $person_page $person_page.File -}}
+                            {{- $person := $person_page.Params -}}
+                            {{- $authors = $authors | append $person.name -}}
+                        {{- else -}}
+                            {{- $authors = $authors | append ($v | plainify) -}}
+                        {{- end -}}
+                        {{- end -}}
+                    {{- end -}}
+                    {{- end -}}
+                {{- end -}}
+
+                {{- /* Add page to index. */ -}}
+                {{- $index = $index | append (dict "objectID" .File.UniqueID "date" .Date.UTC.Unix "publishdate" .PublishDate "lastmod" .Lastmod.UTC.Unix "expirydate" .ExpiryDate.UTC.Unix "lang" .Lang "permalink" $permalink "relpermalink" $rel_permalink "title" $title "summary" (plainify $desc) "content" .Plain "authors" $authors "kind" .Kind "type" .Type "section" .Section "tags" .Params.Tags "categories" .Params.Categories) -}}
+
+            {{- end -}}
+        {{- end -}}
+
+        {{- $index | jsonify -}}
 }
