@@ -237,7 +237,7 @@
             {{- range first 5 (site.RegularPages.Related .) }}
                 <link href="{{ .Permalink }}?utm_source=atom_feed" rel="related" type="text/html" title="{{ .Title }}" />
             {{- end }}
-            <id>urn:uuid:{{ .UniqueID }}</id>
+            <id>urn:uuid:{{ .File.UniqueID }}</id>
             {{ $authors := "" }}
             {{ with .Params.author }}
                 {{ $authors = . }}

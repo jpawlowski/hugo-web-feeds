@@ -85,7 +85,7 @@
                 {{- range first 5 (site.RegularPages.Related .) }}
                     <atom:link href="{{ .Permalink }}?utm_source=rss_feed" rel="related" type="text/html" title="{{ .Title }}" />
                 {{- end }}
-                <guid isPermaLink="false">urn:uuid:{{ .UniqueID }}</guid>
+                <guid isPermaLink="false">urn:uuid:{{ .File.UniqueID }}</guid>
                 {{ with .Params.author -}}
                     {{- range . -}} <!-- Assuming the author front-matter to be a list -->
                         {{ if .email -}}
