@@ -228,14 +228,14 @@
         {{ $page := . }}
         <entry>
             {{ printf `<title type="html"><![CDATA[%s]]></title>` .Title | safeHTML }}
-            <link href="{{ .Permalink }}?utm_source=atom_feed" rel="alternate" type="text/html" />
+            <link href="{{ .Permalink }}?utm_source=atom_feed&utm_medium=entry_link" rel="alternate" type="text/html" />
             {{- range .Translations }}
-                {{- $link := printf "%s?utm_source=atom_feed" .Permalink | safeHTML }}
+                {{- $link := printf "%s?utm_source=atom_feed&utm_medium=entry_link_translation" .Permalink | safeHTML }}
                 {{- printf `<link href=%q rel="alternate" type="text/html" hreflang=%q />` $link .Lang | safeHTML }}
             {{- end }}
             {{/* rel=related: See https://validator.w3.org/feed/docs/atom.html#link */}}
             {{- range first 5 (site.RegularPages.Related .) }}
-                <link href="{{ .Permalink }}?utm_source=atom_feed" rel="related" type="text/html" title="{{ .Title }}" />
+                <link href="{{ .Permalink }}?utm_source=atom_feed&utm_medium=entry_related" rel="related" type="text/html" title="{{ .Title }}" />
             {{- end }}
             <id>urn:uuid:{{ .File.UniqueID }}</id>
             {{ $authors := "" }}
@@ -451,7 +451,7 @@
             {{- end -}}
             {{- $description = (cond (eq "" $description) "" ($description | markdownify | emojify)) -}}
             {{- $continue := i18n "feed_item_summary_readmore" | default "Read&nbsp;more&nbsp;&#8230;" -}}
-            {{- $link := printf `%s?utm_source=rss_feed` .Permalink -}}
+            {{- $link := printf `%s?utm_source=atom_feed&utm_medium=entry_readmore` .Permalink -}}
             {{- $continue = printf `<p><a href=%q>%s</a></p>` $link $continue | safeHTML -}}
             {{ with .Params.disable_feed_content }}
                 {{ if ne "" $description }}
