@@ -151,7 +151,7 @@
                 {{- end -}}
                 {{- $description = (cond (eq "" $description) "" ($description | markdownify | emojify)) -}}
                 {{- $continue := i18n "feed_item_summary_readmore" | default "Read&nbsp;more&nbsp;&#8230;" -}}
-                {{- $link := printf `%s?utm_source=rss_feed&utm_medium=item_readmore` .Permalink -}}
+                {{- $link := printf `%s?utm_source=rss_feed&utm_medium=item_readmore` .Permalink | safeHTML -}}
                 {{- $continue = printf `<p><a href=%q class="more-link">%s</a></p>` $link $continue | safeHTML -}}
                 {{ with .Params.disable_feed_content }}
                     {{ if ne "" $description }}
