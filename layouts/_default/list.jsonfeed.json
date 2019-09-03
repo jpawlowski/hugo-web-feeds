@@ -1,164 +1,294 @@
-{
-    "version": "https://jsonfeed.org/version/1",
-    "user_comment": "This feed allows you to read the posts from this site in any feed reader that supports the JSON Feed format. To add this feed to your reader, copy the following URL — https://example.org/feed.json — and add it your reader.",
-    {{- $title := site.Title -}}
-    {{- with .Title -}}
-        {{- if (not (eq . site.Title)) -}}
-            {{ $title = printf `%s %s %s` . (i18n "feed_title_on" | default "on") site.Title }}
+{{- $scratch := newScratch -}}
+{{- $scratch.SetInMap "feed" "version" "https://jsonfeed.org/version/1" -}}
+{{- $title := site.Title -}}
+{{- with .Title -}}
+    {{- if (not (eq . site.Title)) -}}
+        {{- $title = printf `%s %s %s` . (i18n "feed_title_on" | default "on") site.Title -}}
+    {{- end -}}
+{{- end -}}
+{{- if .IsTranslated -}}
+    {{- $title = printf "%s (%s)" $title (.Language.LanguageName | default (.Lang | upper)) -}}
+{{- end -}}
+{{- $scratch.SetInMap "feed" "title" ($title | plainify) -}}
+{{- with (or (.Param "description") (.Param "subtitle") (.Param "tagline")) -}}
+    {{- $val := . -}}
+    {{- $scratch.SetInMap "feed" "description" ($val | plainify) -}}
+{{- end -}}
+{{- $scratch.SetInMap "feed" "home_page_url" .Permalink -}}
+{{- with .OutputFormats.Get "JSONFeed" -}}
+    {{- $scratch.SetInMap "feed" "feed_url" .Permalink -}}
+{{- end -}}
+{{- with .Param "feed" -}}
+    {{/* For this to work, the $icon file should be present in the assets/ directory */}}
+    {{- $icon := .icon | default "icon.svg" -}}
+    {{- with resources.Get $icon -}}
+        {{- $scratch.SetInMap "feed" "favicon" (. | fingerprint).Permalink -}}
+    {{- end -}}
+
+    {{/* For this to work, the $logo file should be present in the assets/ directory */}}
+    {{- $logo := .logo_square | default (.logo | default "logo_square.svg") -}}
+    {{- with resources.Get $logo -}}
+        {{- $scratch.SetInMap "feed" "icon" (. | fingerprint).Permalink -}}
+    {{- end -}}
+{{- end -}}
+{{- if site.Author.name -}} <!-- this is a single author map -->
+    {{- with site.Author -}}
+        {{- $author := site.GetPage (printf "/%s/%s" "authors" .name) -}}
+            {{- with $author.Params.name -}} <!-- use author name from profile page if found -->
+                {{- $scratch.SetInMap "authors" "name" (. | plainify) -}}
+            {{- else -}}
+                {{- $scratch.SetInMap "authors" "name" (.name | plainify) -}}
+            {{- end -}}
+            {{- with .uri -}} <!-- explicitly overwrite uri -->
+                {{- $scratch.SetInMap "authors" "url" (. | plainify) -}}
+            {{- else -}}
+                {{- with $author -}}
+                    {{- with .Params.uri -}} <!-- use different author uri from profile page if found -->
+                        {{- $scratch.SetInMap "authors" "url" (. | plainify) -}}
+                    {{- else -}} <!-- link to profile page -->
+                        {{- $scratch.SetInMap "authors" "url" (.Permalink | plainify) -}}
+                    {{- end -}}
+                {{- end -}}
+            {{- end -}}
+            {{- with $author -}} <!-- search for avatar -->
+                {{- $avatar := (.Resources.ByType "image").GetMatch "*avatar*" -}}
+                {{- if and site.Params.gravatar .Params.email -}}
+                    {{- $scratch.SetInMap "authors" "avatar" (printf "https://s.gravatar.com/avatar/%s?s=512" (md5 .Params.email)) -}}
+                {{- else if $avatar -}}
+                    {{- $avatar_image := $avatar.Fill "512x512 Center" -}}
+                    {{- $scratch.SetInMap "authors" "avatar" $avatar_image.Permalink -}}
+                {{- end -}}
+            {{- end -}}
+    {{- end -}}
+{{- else if site.Author -}} <!-- this is a multi author map -->
+    {{- $scratch.Add "author_no" 0 -}}
+    {{- range $elem_index, $elem_val := site.Author -}}
+        {{- $elem := printf `author_%s` ($scratch.Get "author_no") -}}
+        {{- $name := .name | default $elem_index -}}
+        {{- $author := site.GetPage (printf "/%s/%s" "authors" $name) -}}
+        {{- with $author.Params.name -}} <!-- use author name from profile page if found -->
+            {{- $scratch.SetInMap $elem "name" (. | plainify) -}}
+        {{- else -}}
+            {{- $scratch.SetInMap $elem "name" ($name | plainify) -}}
         {{- end -}}
-    {{- end -}}
-    {{- if .IsTranslated }}
-        {{ $title = printf "%s (%s)" $title (.Language.LanguageName | default (.Lang | upper)) }}
-    {{- end -}}
-    {{ printf `"title": %q,` $title | safeHTML }}
-    {{ with (or (.Param "description") (.Param "subtitle") (.Param "tagline")) }}
-        {{- printf `"description": %q,` . | safeHTML -}}
-    {{ end }}
-    "home_page_url": "{{ .Permalink }}",
-    {{- with .OutputFormats.Get "JSONFeed" }}
-        "feed_url": "{{ .Permalink }}",
-    {{- end -}}
-    {{ with .Param "feed" }}
-        {{/* For this to work, the $icon file should be present in the assets/ directory */}}
-        {{- $icon := .icon | default "icon.svg" -}}
-        {{- with resources.Get $icon -}}
-            "favicon": "{{ (. | fingerprint).Permalink }}",
-        {{- end }}
-
-        {{/* For this to work, the $logo file should be present in the assets/ directory */}}
-        {{- $logo := .logo_square | default (.logo | default "logo_square.svg") -}}
-        {{- with resources.Get $logo -}}
-            "icon": "{{ (. | fingerprint).Permalink }}",
-        {{- end }}
-    {{ end }}
-    {{ if site.Author.name }} <!-- this is a single author map -->
-        {{ with site.Author }}
-            {{- $author := site.GetPage (printf "/%s/%s" "authors" .name) }}
-            "author": {
-                {{- with $author.Params.name }} <!-- use author name from profile page if found -->
-                    "name": "{{ . | plainify }}"
-                {{- else -}}
-                    "name": "{{ .name | plainify }}"
+        {{- with .uri -}} <!-- explicitly overwrite uri -->
+            {{- $scratch.SetInMap $elem "url" (. | safeHTML) -}}
+        {{- else -}}
+            {{- with $author -}}
+                {{- with .Params.uri -}} <!-- use different author uri from profile page if found -->
+                    {{- $scratch.SetInMap $elem "url" (. | safeHTML) -}}
+                {{- else -}} <!-- link to profile page -->
+                    {{- $scratch.SetInMap $elem "url" .Permalink -}}
                 {{- end -}}
-                {{- with .uri }} <!-- explicitly overwrite uri -->
-                   , "url": "{{ . | safeHTML }}"
-                {{- else }}
-                    {{ with $author }}
-                        {{- with .Params.uri }} <!-- use different author uri from profile page if found -->
-                           , "url": "{{ . | safeHTML }}"
-                        {{- else }} <!-- link to profile page -->
-                           , "url": "{{ .Permalink }}"
-                        {{- end -}}
-                    {{- end -}}
-                {{- end -}}
-                {{ with $author }} <!-- search for avatar -->
-                    {{ $avatar := (.Resources.ByType "image").GetMatch "*avatar*" }}
-                    {{ if and site.Params.gravatar .Params.email }}
-                        , "avatar": "https://s.gravatar.com/avatar/{{ md5 .Params.email }}?s=200"
-                    {{ else if $avatar }}
-                        {{ $avatar_image := $avatar.Fill "512x512 Center" }}
-                        , "avatar": "{{ $avatar_image.RelPermalink }}"
-                    {{ end }}
-                {{- end -}}
-            },
-        {{- end -}}
-    {{ else if site.Author }} <!-- this is a multi author map -->
-        "author": [
-        {{ $i := false }}
-        {{ range $elem_index, $elem_val := site.Author }}
-            {{- $name := .name | default $elem_index }}
-            {{- $author := site.GetPage (printf "/%s/%s" "authors" $name) }}
-            {{ if $i }}, {{ end }}
-            {
-                {{- with $author.Params.name }} <!-- use author name from profile page if found -->
-                    "name": "{{ . | plainify }}"
-                {{- else -}}
-                    "name": "{{ $name | plainify }}"
-                {{- end -}}
-                {{- with .uri }} <!-- explicitly overwrite uri -->
-                    , "url": "{{ . | safeHTML }}"
-                {{- else }}
-                    {{ with $author }}
-                        {{- with .Params.uri }} <!-- use different author uri from profile page if found -->
-                            , "url": "{{ . | safeHTML }}"
-                        {{- else }} <!-- link to profile page -->
-                            , "url": "{{ .Permalink }}"
-                        {{- end -}}
-                    {{- end -}}
-                {{- end -}}
-                {{ with $author }} <!-- search for avatar -->
-                    {{ $avatar := (.Resources.ByType "image").GetMatch "*avatar*" }}
-                    {{ if and site.Params.gravatar .Params.email }}
-                        , "avatar": "https://s.gravatar.com/avatar/{{ md5 .Params.email }}?s=200"
-                    {{ else if $avatar }}
-                        {{ $avatar_image := $avatar.Fill "512x512 Center" }}
-                        , "avatar": "{{ $avatar_image.RelPermalink }}"
-                    {{ end }}
-                {{- end -}}
-            }
-            {{ $i = true }}
-        {{ end }}
-        ],
-    {{ end }}
-    "items": 
-        {{- $index := slice -}}
-        {{- $limit := (cond (le site.Config.Services.RSS.Limit 0) 65536 site.Config.Services.RSS.Limit) }}
-        {{- $feed_sections := site.Params.feedSections | default site.Params.mainSections -}}
-        {{/* Range through only the pages with a Type in $feed_sections. */}}
-        {{- $pages := where .Pages "Type" "in" $feed_sections -}}
-        {{/* Remove the pages that have the disable_feed parameter set to true. */}}
-        {{- $pages = where $pages ".Params.disable_feed" "!=" true -}}
-        {{- range first $limit $pages -}}
-            {{- /* Do not index drafts or private pages. */ -}}
-            {{- if and (not .Draft) (not .Params.private) -}}
-                {{- /* Generate page description. */ -}}
-                {{- $desc := "" -}}
-                {{- if .Params.summary -}}
-                {{- $desc = .Params.summary -}}
-                {{- else if .Params.abstract -}}
-                {{- $desc = .Params.abstract -}}
-                {{- else -}}
-                {{- $desc = .Summary -}}
-                {{- end -}}
-
-                {{- $authors := .Params.authors -}}
-                {{- $title := .Title}}
-                {{- $rel_permalink := .RelPermalink -}}
-                {{- $permalink := .Permalink -}}
-
-                {{/* Correct the title and URL for author profile pages. */}}
-                {{- if eq .Section "authors" -}}
-                {{- $title = .Params.name -}}
-                {{- $username := path.Base (path.Split .Path).Dir -}}
-                {{- with site.GetPage (printf "/authors/%s" $username) -}}
-                    {{- $permalink = .Permalink -}}
-                    {{- $rel_permalink = .RelPermalink -}}
-                {{- end -}}
-                {{- else -}}
-                {{/* Include a user's display name rather than username where possible. */}}
-                {{- if .Params.authors -}}
-                    {{- $authorLen := len .Params.authors -}}
-                    {{- if gt $authorLen 0 -}}
-                    {{- $authors = slice -}}
-                        {{- range $k, $v := .Params.authors -}}
-                        {{- $person_page_path := (printf "/authors/%s" (urlize $v)) -}}
-                        {{- $person_page := site.GetPage $person_page_path -}}
-                        {{- if and $person_page $person_page.File -}}
-                            {{- $person := $person_page.Params -}}
-                            {{- $authors = $authors | append $person.name -}}
-                        {{- else -}}
-                            {{- $authors = $authors | append ($v | plainify) -}}
-                        {{- end -}}
-                        {{- end -}}
-                    {{- end -}}
-                    {{- end -}}
-                {{- end -}}
-
-                {{- /* Add page to index. */ -}}
-                {{- $index = $index | append (dict "objectID" .File.UniqueID "date" .Date.UTC.Unix "publishdate" .PublishDate "lastmod" .Lastmod.UTC.Unix "expirydate" .ExpiryDate.UTC.Unix "lang" .Lang "permalink" $permalink "relpermalink" $rel_permalink "title" $title "summary" (plainify $desc) "content" .Plain "authors" $authors "kind" .Kind "type" .Type "section" .Section "tags" .Params.Tags "categories" .Params.Categories) -}}
-
             {{- end -}}
         {{- end -}}
+        {{- with $author -}} <!-- search for avatar -->
+            {{- $avatar := (.Resources.ByType "image").GetMatch "*avatar*" -}}
+            {{- if and site.Params.gravatar .Params.email -}}
+                {{- $scratch.SetInMap $elem "avatar" (printf "https://s.gravatar.com/avatar/%s?s=512" (md5 .Params.email)) -}}
+            {{- else if $avatar -}}
+                {{- $avatar_image := $avatar.Fill "512x512 Center" -}}
+                {{- $scratch.SetInMap $elem "avatar" $avatar_image.Permalink -}}
+            {{- end -}}
+        {{- end -}}
+        {{- $scratch.Add "authors" (slice ($scratch.Get $elem))}}
+        {{- $scratch.Add "author_no" 1 -}}
+    {{- end -}}
+{{- end -}}
+{{- $scratch.SetInMap "feed" "author" ($scratch.Get "authors") -}}
 
-        {{- $index | jsonify -}}
-}
+
+{{- $limit := (cond (le site.Config.Services.RSS.Limit 0) 65536 site.Config.Services.RSS.Limit) -}}
+{{- $feed_sections := site.Params.feedSections | default site.Params.mainSections -}}
+{{/* Range through only the pages with a Type in $feed_sections. */}}
+{{- $pages := where .Pages "Type" "in" $feed_sections -}}
+{{/* Remove the pages that have the disable_feed parameter set to true. */}}
+{{- $pages = where $pages ".Params.disable_feed" "!=" true -}}
+{{- $scratch.Add "item_no" 0 -}}
+{{- range first $limit $pages -}}
+    {{- $elem := printf `item_%s` ($scratch.Get "item_no") -}}
+    {{- $page := . -}}
+    {{- $scratch.SetInMap $elem "id" (printf `urn:uuid:%s` .File.UniqueID) -}}
+    {{- $scratch.SetInMap $elem "url" (printf `%s?utm_source=json_feed` .Permalink) -}}
+    {{- $scratch.SetInMap $elem "title" (.Title | plainify) -}}
+    {{- $elem_authors := printf `item_%s_authors` ($scratch.Get "item_no") -}}
+    {{- $authors := "" -}}
+    {{- with .Params.author -}}
+        {{- $authors = . -}}
+    {{- else -}}
+        {{- with .Params.authors -}}
+            {{- $authors = . -}}
+        {{- end -}}
+    {{- end -}}
+    {{- $scratch.Add "item_author_no" 0 -}}
+    {{- if and $authors (reflect.IsSlice $authors) -}} <!-- if authors are defined as slice -->
+        {{- range $authors -}}
+            {{- $elem_author := printf `%s_%s` $elem_authors ($scratch.Get "item_author_no") -}}
+            {{- $author := site.GetPage (printf "/%s/%s" "authors" .) -}}
+            {{- with $author.Params.name -}} <!-- use author name from profile page if found -->
+                {{- $scratch.SetInMap $elem_author "name" (. | plainify) -}}
+            {{- else -}}
+                {{- $scratch.SetInMap $elem_author "name" (. | plainify) -}}
+            {{- end -}}
+            {{- with $author -}}
+                {{- with .Params.uri -}} <!-- use different author uri from profile page if found -->
+                    {{- $scratch.SetInMap $elem_author "url" (. | safeHTML) -}}
+                {{- else -}} <!-- link to profile page -->
+                    {{- $scratch.SetInMap $elem_author "url" .Permalink -}}
+                {{- end -}}
+                {{- $avatar := (.Resources.ByType "image").GetMatch "*avatar*" -}}
+                {{- if and site.Params.gravatar .Params.email -}}
+                    {{- $scratch.SetInMap $elem_author "avatar" (printf "https://s.gravatar.com/avatar/%s?s=512" (md5 .Params.email)) -}}
+                {{- else if $avatar -}}
+                    {{- $avatar_image := $avatar.Fill "512x512 Center" -}}
+                    {{- $scratch.SetInMap $elem_author "avatar" $avatar_image.Permalink -}}
+                {{- end -}}
+            {{- end -}}
+            {{- $scratch.Add $elem_authors (slice ($scratch.Get $elem_author))}}
+            {{- $scratch.Add "item_author_no" 1 -}}
+        {{- end -}}
+    {{- else if and $authors (reflect.IsMap $authors) -}} <!-- if authors are defined as map -->
+        {{- if $authors.name -}} <!-- this is a single author map -->
+            {{- with $authors -}}
+                {{- $author := site.GetPage (printf "/%s/%s" "authors" .name) -}}
+                <author>
+                    {{- with $author.Params.name -}} <!-- use author name from profile page if found -->
+                        <name>{{- . | plainify -}}</name>
+                    {{- else -}}
+                        <name>{{- .name | plainify -}}</name>
+                    {{- end -}}
+                    {{- with .uri -}} <!-- explicitly overwrite uri -->
+                        <uri>{{- . | safeHTML -}}</uri>
+                    {{- else -}}
+                        {{- with $author -}}
+                            {{- with .Params.uri -}} <!-- use different author uri from profile page if found -->
+                                <uri>{{- . | safeHTML -}}</uri>
+                            {{- else -}} <!-- link to profile page -->
+                                <uri>{{- .Permalink -}}</uri>
+                            {{- end -}}
+                        {{- end -}}
+                    {{- end -}}
+                    {{- with .email -}} <!-- explicitly overwrite email -->
+                        <email>{{- . | safeHTML -}}</email>
+                    {{- else -}}
+                        {{- with $author -}}
+                            {{- with .Params.email -}} <!-- use different author email from profile page if found -->
+                                <email>{{- . | safeHTML -}}</email>
+                            {{- end -}}
+                        {{- end -}}
+                    {{- end -}}
+                </author>
+            {{- end -}}
+        {{- else -}} <!-- this is a multi author map -->
+            {{- range $elem_index, $elem_val := $authors -}}
+                {{- $name := .name | default $elem_index -}}
+                {{- $author := site.GetPage (printf "/%s/%s" "authors" $name) -}}
+                <author>
+                    {{- with $author.Params.name -}} <!-- use author name from profile page if found -->
+                        <name>{{- . | plainify -}}</name>
+                    {{- else -}}
+                        <name>{{- $name | plainify -}}</name>
+                    {{- end -}}
+                    {{- with .uri -}} <!-- explicitly overwrite uri -->
+                        <uri>{{- . | safeHTML -}}</uri>
+                    {{- else -}}
+                        {{- with $author -}}
+                            {{- with .Params.uri -}} <!-- use different author uri from profile page if found -->
+                                <uri>{{- . | safeHTML -}}</uri>
+                            {{- else -}} <!-- link to profile page -->
+                                <uri>{{- .Permalink -}}</uri>
+                            {{- end -}}
+                        {{- end -}}
+                    {{- end -}}
+                    {{- with .email -}} <!-- explicitly overwrite email -->
+                        <email>{{- . | safeHTML -}}</email>
+                    {{- else -}}
+                        {{- with $author -}}
+                            {{- with .Params.email -}} <!-- use different author email from profile page if found -->
+                                <email>{{- . | safeHTML -}}</email>
+                            {{- end -}}
+                        {{- end -}}
+                    {{- end -}}
+                </author>
+            {{- end -}}
+        {{- end -}}
+    {{- else if $authors -}} <!-- simple author name -->
+        {{- $scratch.SetInMap $elem_authors "name" ($authors | plainify) -}}
+    {{- end -}}
+    {{- if $scratch.Get $elem_authors -}}
+        {{- $scratch.SetInMap $elem "author" ($scratch.Get $elem_authors) -}}
+    {{- end -}}
+
+    {{- $description := "" -}}
+    {{- with .Description -}}
+        {{- $description = . -}}
+    {{- else -}}
+        {{- with .Summary -}}
+            {{- $description = . -}}
+        {{- end -}}
+    {{- end -}}
+    {{- $description = (cond (eq "" $description) "" ($description | markdownify | emojify)) -}}
+    {{- $content := .Content -}}
+    {{- $subtitle := "" -}}
+    {{- with .Params.subtitle -}}
+        {{- $subtitle = . -}}
+        {{- $content = printf `<h2>%s</h2>%s` $subtitle $content | safeHTML -}}
+    {{- end -}}
+    {{- $description = (cond (eq "" $description) "" ($description | markdownify | emojify)) -}}
+    {{- $continue := i18n "feed_item_summary_readmore" | default "Read&nbsp;more&nbsp;&#8230;" -}}
+    {{- $link := printf `%s?utm_source=json_feed` .Permalink -}}
+    {{- $continue = printf `<p><a href=%q>%s</a></p>` $link $continue | safeHTML -}}
+    {{- with .Params.disable_feed_content -}}
+        {{- if ne "" $description -}}
+            {{- if ne "" $subtitle -}}
+                {{- $description = printf `<h2>%s</h2>%s` $subtitle $description | safeHTML -}}
+            {{- end -}}
+            {{- $scratch.SetInMap $elem "content_html" (printf `%s<p>&nbsp;</p>%s` $description $continue | safeHTML) -}}
+        {{- else -}}
+            {{- if ne "" $subtitle -}}
+                {{- $scratch.SetInMap $elem "content_html" (printf `%s<p>&nbsp;</p>%s` $subtitle $continue | safeHTML) -}}
+            {{- else -}}
+                {{- $scratch.SetInMap $elem "content_html" ($continue | safeHTML) -}}
+            {{- end -}}
+        {{- end -}}
+    {{- else -}}
+        {{- if eq "" $description -}}
+            {{- if ne "" $content -}}
+                {{- $scratch.SetInMap $elem "content_html" ($content | safeHTML) -}}
+            {{- else -}}
+                {{- if ne "" $subtitle -}}
+                    {{- $scratch.SetInMap $elem "summary" ($subtitle | plainify) -}}
+                    {{- $scratch.SetInMap $elem "content_html" (printf `%s<p>&nbsp;</p>%s` $subtitle $continue | safeHTML) -}}
+                {{- else -}}
+                    {{- $scratch.SetInMap $elem "content_html" ($continue | safeHTML) -}}
+                {{- end -}}
+            {{- end -}}
+        {{- else if eq "" $content -}}
+            {{- if ne "" $subtitle -}}
+                {{- $description = printf `<h2>%s</h2>%s` $subtitle $description | safeHTML -}}
+            {{- end -}}
+            {{- $scratch.SetInMap $elem "summary" ($description | plainify) -}}
+            {{- $scratch.SetInMap $elem "content_html" (printf `%s<p>&nbsp;</p>%s` $description $continue | safeHTML) -}}
+        {{- else -}}
+            {{- $scratch.SetInMap $elem "summary" ($description | plainify) -}}
+            {{- $scratch.SetInMap $elem "content_html" ($content | safeHTML) -}}
+        {{- end -}}
+    {{- end -}}
+    {{- $taxo := "categories" -}}
+    {{- with $page.Param $taxo -}}
+        {{- $elem_tags := printf `item_%s_tags` ($scratch.Get "item_no") -}}
+        {{- $taxo_list := . -}} <!-- $taxo_list will be the categories list -->
+        {{- with site.GetPage (printf "/%s" $taxo) -}}
+            {{- $taxonomy_page := . -}}
+            {{- range $taxo_list -}} <!-- Below, assuming pretty URLs -->
+                {{- $scratch.Add $elem_tags (slice .) -}}
+            {{- end -}}
+        {{- end -}}
+        {{- $scratch.SetInMap $elem "tags" ($scratch.Get $elem_tags) -}}
+    {{- end -}}
+    {{- $scratch.Add "items" (slice ($scratch.Get $elem))}}
+    {{- $scratch.Add "item_no" 1 -}}
+{{- end -}}
+{{- $scratch.SetInMap "feed" "items" ($scratch.Get "items") -}}
+
+{{- $scratch.Get "feed" | jsonify -}}
