@@ -111,6 +111,12 @@
     {{- $scratch.SetInMap $elem "id" (printf `urn:uuid:%s` .File.UniqueID) -}}
     {{- $scratch.SetInMap $elem "url" (printf `%s?utm_source=json_feed` .Permalink) -}}
     {{- $scratch.SetInMap $elem "title" (.Title | plainify) -}}
+    {{- $date_pub := .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML -}}
+    {{- $date_mod := .Lastmod.Format "2006-01-02T15:04:05-07:00" | safeHTML -}}
+    {{- $scratch.SetInMap $elem "date_published" $date_pub -}}
+    {{- if ne $date_pub $date_mod -}}
+        {{- $scratch.SetInMap $elem "date_modified" $date_mod -}}
+    {{- end -}}
     {{- $elem_authors := printf `item_%s_authors` ($scratch.Get "item_no") -}}
     {{- $authors := "" -}}
     {{- with .Params.author -}}
@@ -274,6 +280,16 @@
             {{- $scratch.SetInMap $elem "content_html" ($content | safeHTML) -}}
         {{- end -}}
     {{- end -}}
+
+    {{- $image := ($page.Resources.ByType "image").GetMatch "*featured*" -}}
+    {{- with $image -}}
+        {{- $scratch.SetInMap $elem "image" .Permalink -}}
+    {{end}}
+    {{- $banner_image := ($page.Resources.ByType "image").GetMatch "*banner*" -}}
+    {{- with $banner_image -}}
+        {{- $scratch.SetInMap $elem "banner_image" .Permalink -}}
+    {{end}}
+
     {{- $taxo := "categories" -}}
     {{- with $page.Param $taxo -}}
         {{- $elem_tags := printf `item_%s_tags` ($scratch.Get "item_no") -}}
