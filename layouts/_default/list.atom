@@ -39,6 +39,8 @@
         {{- $copyright = replace $copyright "&copy;" "©" -}}
         <rights>{{ $copyright | plainify }}</rights>
     {{- end }}
+    {{- $image_name := "*featured*" -}}
+    {{- $banner_image_name := "*banner*" -}}
     {{ with .Param "feed" }}
         {{/* For this to work, the $icon file should be present in the assets/ directory */}}
         {{- $icon := .icon | default "icon.svg" -}}
@@ -51,6 +53,12 @@
         {{- with resources.Get $logo -}}
             <logo>{{ (. | fingerprint).Permalink }}</logo>
         {{- end }}
+
+        {{/* For this to work, the $image_name file should be present in the content item directory */}}
+        {{- $image_name = .item_image_name | default $image_name -}}
+
+        {{/* For this to work, the $banner_image_name file should be present in the content item directory */}}
+        {{- $banner_image_name = .banner_image_name | default $banner_image_name -}}
     {{ end }}
     {{ if site.Author.name }} <!-- this is a single author map -->
         {{ with site.Author }}
@@ -228,14 +236,14 @@
         {{ $page := . }}
         <entry>
             {{ printf `<title type="html"><![CDATA[%s]]></title>` .Title | safeHTML }}
-            <link href="{{ .Permalink }}?utm_source=atom_feed&utm_medium=entry_link" rel="alternate" type="text/html" />
+            <link href="{{ .Permalink }}?utm_source=atom_feed&utm_medium=item_link" rel="alternate" type="text/html" />
             {{- range .Translations }}
-                {{- $link := printf "%s?utm_source=atom_feed&utm_medium=entry_link_translation" .Permalink | safeHTML }}
+                {{- $link := printf "%s?utm_source=atom_feed&utm_medium=item_link_translation" .Permalink | safeHTML }}
                 {{- printf `<link href=%q rel="alternate" type="text/html" hreflang=%q />` $link .Lang | safeHTML }}
             {{- end }}
             {{/* rel=related: See https://validator.w3.org/feed/docs/atom.html#link */}}
             {{- range first 5 (site.RegularPages.Related .) }}
-                <link href="{{ .Permalink }}?utm_source=atom_feed&utm_medium=entry_related" rel="related" type="text/html" title="{{ .Title }}" />
+                <link href="{{ .Permalink }}?utm_source=atom_feed&utm_medium=item_related" rel="related" type="text/html" title="{{ .Title }}" />
             {{- end }}
             {{ with .Params.Id }}
                 <id>{{ . | plainify }}</id>
@@ -459,6 +467,15 @@
             {{- end -}}
             {{- $description = (cond (eq "" $description) "" ($description | markdownify | emojify)) -}}
             {{- $content := .Content -}}
+            {{- $image := ($page.Resources.ByType "image").GetMatch $image_name -}}
+            {{- with $image -}}
+                {{- $img := printf `<div class="feat-image"><img src=%q /></div>` .Permalink | safeHTML }}
+                {{ if ne "" $content }}
+                    {{ $content = printf `%s%s` $img $content }}
+                {{ else if ne "" $description }}
+                    {{ $description = printf `%s%s` $img $description }}
+                {{ end }}
+            {{- end -}}
             {{- $subtitle := "" -}}
             {{- with .Params.subtitle -}}
                 {{ $subtitle = . -}}
@@ -466,8 +483,8 @@
             {{- end -}}
             {{- $description = (cond (eq "" $description) "" ($description | markdownify | emojify)) -}}
             {{- $continue := i18n "feed_item_summary_readmore" | default "Read&nbsp;more&nbsp;&#8230;" -}}
-            {{- $link := printf `%s?utm_source=atom_feed&utm_medium=entry_readmore` .Permalink -}}
-            {{- $continue = printf `<p><a href=%q>%s</a></p>` $link $continue | safeHTML -}}
+            {{- $link := printf `%s?utm_source=atom_feed&utm_medium=item_readmore` .Permalink -}}
+            {{- $continue = printf `<p><a href=%q class="more-link">%s</a></p>` $link $continue | safeHTML -}}
             {{ with .Params.disable_feed_content }}
                 {{ if ne "" $description }}
                     {{ if ne "" $subtitle }}

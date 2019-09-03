@@ -43,6 +43,8 @@
             {{- $copyright = replace $copyright "&copy;" "©" -}}
             <copyright>{{ $copyright | plainify }}</copyright>
         {{- end }}
+        {{- $image_name := "*featured*" -}}
+        {{- $banner_image_name := "*banner*" -}}
         {{ with .Param "feed" }}
             {{/* For this to work, the $logo file should be present in the assets/ directory */}}
             {{- $logo := .logo | default (.logo_square | default "logo.svg") -}}
@@ -56,6 +58,12 @@
                     {{ end }}
                 </image>
             {{- end }}
+
+            {{/* For this to work, the $image_name file should be present in the content item directory */}}
+            {{- $image_name = .item_image_name | default $image_name -}}
+
+            {{/* For this to work, the $banner_image_name file should be present in the content item directory */}}
+            {{- $banner_image_name = .banner_image_name | default $banner_image_name -}}
         {{ end }}
         {{ with site.Author.email -}}
             <managingEditor>
@@ -64,7 +72,7 @@
         {{- end }}
         {{- with site.LanguageCode }}
             <language>{{ . }}</language>
-        {{end -}}
+        {{- end -}}
         {{- $limit := (cond (le site.Config.Services.RSS.Limit 0) 65536 site.Config.Services.RSS.Limit) }}
         {{- $feed_sections := site.Params.feedSections | default site.Params.mainSections -}}
         {{/* Range through only the pages with a Type in $feed_sections. */}}
@@ -76,14 +84,14 @@
             <item>
                 <title>{{ printf `%s` .Title | html }}</title>
                 <link>{{ .Permalink }}?utm_source=rss_feed</link>
-                <atom:link href="{{ .Permalink }}?utm_source=rss_feed" rel="alternate" type="text/html" />
+                <atom:link href="{{ .Permalink }}?utm_source=rss_feed&utm_medium=item_link" rel="alternate" type="text/html" />
                 {{- range .Translations }}
-                    {{- $link := printf "%s?utm_source=rss_feed" .Permalink | safeHTML }}
+                    {{- $link := printf "%s?utm_source=rss_feed&utm_medium=item_link_translation" .Permalink | safeHTML }}
                     {{- printf `<atom:link href=%q rel="alternate" type="text/html" hreflang=%q />` $link .Lang | safeHTML }}
                 {{- end }}
                 {{/* rel=related: See https://validator.w3.org/feed/docs/atom.html#link */}}
                 {{- range first 5 (site.RegularPages.Related .) }}
-                    <atom:link href="{{ .Permalink }}?utm_source=rss_feed" rel="related" type="text/html" title="{{ .Title }}" />
+                    <atom:link href="{{ .Permalink }}?utm_source=rss_feed&utm_medium=item_related" rel="related" type="text/html" title="{{ .Title }}" />
                 {{- end }}
                 {{ with .Params.Id }}
                     <guid isPermaLink="false">{{ . | plainify }}</guid>
@@ -127,6 +135,15 @@
                 {{- end -}}
                 {{- $description = (cond (eq "" $description) "" ($description | markdownify | emojify)) -}}
                 {{- $content := .Content -}}
+                {{- $image := ($page.Resources.ByType "image").GetMatch $image_name -}}
+                {{- with $image -}}
+                    {{- $img := printf `<div class="feat-image"><img src=%q /></div>` .Permalink | safeHTML }}
+                    {{ if ne "" $content }}
+                        {{ $content = printf `%s%s` $img $content }}
+                    {{ else if ne "" $description }}
+                        {{ $description = printf `%s%s` $img $description }}
+                    {{ end }}
+                {{- end -}}
                 {{- $subtitle := "" -}}
                 {{- with .Params.subtitle -}}
                     {{ $subtitle = . -}}
@@ -134,8 +151,8 @@
                 {{- end -}}
                 {{- $description = (cond (eq "" $description) "" ($description | markdownify | emojify)) -}}
                 {{- $continue := i18n "feed_item_summary_readmore" | default "Read&nbsp;more&nbsp;&#8230;" -}}
-                {{- $link := printf `%s?utm_source=rss_feed` .Permalink -}}
-                {{- $continue = printf `<p><a href=%q>%s</a></p>` $link $continue | safeHTML -}}
+                {{- $link := printf `%s?utm_source=rss_feed&utm_medium=item_readmore` .Permalink -}}
+                {{- $continue = printf `<p><a href=%q class="more-link">%s</a></p>` $link $continue | safeHTML -}}
                 {{ with .Params.disable_feed_content }}
                     {{ if ne "" $description }}
                         {{ if ne "" $subtitle }}

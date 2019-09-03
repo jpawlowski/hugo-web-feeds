@@ -18,6 +18,8 @@
 {{- with .OutputFormats.Get "JSONFeed" -}}
     {{- $scratch.SetInMap "feed" "feed_url" .Permalink -}}
 {{- end -}}
+{{- $image_name := "*featured*" -}}
+{{- $banner_image_name := "*banner*" -}}
 {{- with .Param "feed" -}}
     {{/* For this to work, the $icon file should be present in the assets/ directory */}}
     {{- $icon := .icon | default "icon.svg" -}}
@@ -30,6 +32,12 @@
     {{- with resources.Get $logo -}}
         {{- $scratch.SetInMap "feed" "icon" (. | fingerprint).Permalink -}}
     {{- end -}}
+
+    {{/* For this to work, the $image_name file should be present in the content item directory */}}
+    {{- $image_name = .item_image_name | default $image_name -}}
+
+    {{/* For this to work, the $banner_image_name file should be present in the content item directory */}}
+    {{- $banner_image_name = .banner_image_name | default $banner_image_name -}}
 {{- end -}}
 {{- if site.Author.name -}} <!-- this is a single author map -->
     {{- with site.Author -}}
@@ -124,7 +132,7 @@
             {{- end -}}
         {{- end -}}
     {{- end -}}
-    {{- $scratch.SetInMap $elem "url" (printf `%s?utm_source=json_feed` .Permalink) -}}
+    {{- $scratch.SetInMap $elem "url" (printf `%s?utm_source=json_feed&utm_medium=item_link` .Permalink) -}}
     {{- $scratch.SetInMap $elem "title" (.Title | plainify) -}}
     {{- $date_pub := .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML -}}
     {{- $date_mod := .Lastmod.Format "2006-01-02T15:04:05-07:00" | safeHTML -}}
@@ -249,7 +257,7 @@
         {{- end -}}
     {{- end -}}
     {{- $description = (cond (eq "" $description) "" ($description | markdownify | emojify)) -}}
-    {{- $content := .Content -}}
+    {{- $content := .Content | safeHTML -}}
     {{- $subtitle := "" -}}
     {{- with .Params.subtitle -}}
         {{- $subtitle = . -}}
@@ -257,8 +265,8 @@
     {{- end -}}
     {{- $description = (cond (eq "" $description) "" ($description | markdownify | emojify)) -}}
     {{- $continue := i18n "feed_item_summary_readmore" | default "Read&nbsp;more&nbsp;&#8230;" -}}
-    {{- $link := printf `%s?utm_source=json_feed` .Permalink -}}
-    {{- $continue = printf `<p><a href=%q>%s</a></p>` $link $continue | safeHTML -}}
+    {{- $link := printf `%s?utm_source=json_feed&utm_medium=item_readmore` .Permalink -}}
+    {{- $continue = printf `<p><a href=%q class="more-link">%s</a></p>` $link $continue | safeHTML -}}
     {{- with .Params.disable_feed_content -}}
         {{- if ne "" $description -}}
             {{- if ne "" $subtitle -}}
@@ -296,14 +304,14 @@
         {{- end -}}
     {{- end -}}
 
-    {{- $image := ($page.Resources.ByType "image").GetMatch "*featured*" -}}
+    {{- $image := ($page.Resources.ByType "image").GetMatch $image_name -}}
     {{- with $image -}}
         {{- $scratch.SetInMap $elem "image" .Permalink -}}
-    {{end}}
-    {{- $banner_image := ($page.Resources.ByType "image").GetMatch "*banner*" -}}
+    {{- end -}}
+    {{- $banner_image := ($page.Resources.ByType "image").GetMatch $banner_image_name -}}
     {{- with $banner_image -}}
         {{- $scratch.SetInMap $elem "banner_image" .Permalink -}}
-    {{end}}
+    {{- end -}}
 
     {{- $taxo := "categories" -}}
     {{- with $page.Param $taxo -}}

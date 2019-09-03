@@ -10,12 +10,16 @@ A list of major supported features:
 * Full multi-language support
 * Multi-user support with author profile pages, both on site and page level
 * Supports full content and summary, customizable on site and page level
+* Featured image support
+* Banner image support (JSON Feed only)
 * Subtitle support
 * Taxonomy support
-* Custom URN support for Atom and JSON feed IDs on site and page level
+* Custom [URN](https://en.wikipedia.org/wiki/Uniform_resource_name) support for Atom and JSON feed IDs on site and page level
+* [UTM](https://www.maketecheasier.com/what-is-utm-source/) tracking support
 
 This is what's on the To-Do list right now:
 
+* Table of Contents (TOC) support
 * [WebSub](https://en.wikipedia.org/wiki/WebSub) support
 
 ## Table of Contents
