@@ -108,7 +108,22 @@
 {{- range first $limit $pages -}}
     {{- $elem := printf `item_%s` ($scratch.Get "item_no") -}}
     {{- $page := . -}}
-    {{- $scratch.SetInMap $elem "id" (printf `urn:uuid:%s` .File.UniqueID) -}}
+    {{- with .Params.Id -}}
+        {{- $scratch.SetInMap $elem "id" (. | plainify) -}}
+    {{- else -}}
+        {{- with .Param "feed" -}}
+            {{- if eq .item_id "uuid" -}}
+                {{- $uuid := (substr $page.File.UniqueID 0 8) -}}
+                {{- $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 8 4) -}}
+                {{- $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 12 4) -}}
+                {{- $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 16 4) -}}
+                {{- $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 20 12) -}}
+                {{- $scratch.SetInMap $elem "id" (printf `urn:uuid:%s` $uuid) -}}
+            {{- else -}}
+                {{- $scratch.SetInMap $elem "id" $page.Permalink -}}
+            {{- end -}}
+        {{- end -}}
+    {{- end -}}
     {{- $scratch.SetInMap $elem "url" (printf `%s?utm_source=json_feed` .Permalink) -}}
     {{- $scratch.SetInMap $elem "title" (.Title | plainify) -}}
     {{- $date_pub := .Date.Format "2006-01-02T15:04:05-07:00" | safeHTML -}}

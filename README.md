@@ -49,9 +49,11 @@ The default file name for Atom feeds is `feed.atom` (also see [`.atom` file exte
 
 This format came up as an [idea of Manton Reece and Brent Simmons](https://jsonfeed.org/) in 2017 and has seen quite prominent adoption to sites since then.
 
-However, on Wikipedia it is currently only known as "just another type" of [data feeds](https://en.wikipedia.org/wiki/Data_feed) with no relation to be an official [web feed](https://en.wikipedia.org/wiki/Web_feed) format yet. This is why the JSON Feed format is marked as _experimental_ here, especially as visitors need to have a state-of-the-art feed reader that is supporting this brand new format. That is why it cannot be the only format offered without risking to loose interest of visitors to subscribe.
+However, on Wikipedia it is currently only known as "just another type" of [data feeds](https://en.wikipedia.org/wiki/Data_feed) with no relation to be an official [web feed](https://en.wikipedia.org/wiki/Web_feed) format yet. This is why the JSON Feed format is marked as _experimental_ here, especially as visitors need to have a state-of-the-art feed reader[^1] that is supporting this brand new format. That is why it cannot be the only format offered without risking to loose interest of visitors to subscribe.
 
 The default file name for JSON Feed files is `feed.json`.
+
+[^1]: like [NetNewsWire](https://ranchero.com/netnewswire/), also made by Brent Simmons.
 
 ### Extended RSS 2.0 Feed (Legacy Feed Format)
 

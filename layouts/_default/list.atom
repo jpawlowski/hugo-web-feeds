@@ -237,7 +237,22 @@
             {{- range first 5 (site.RegularPages.Related .) }}
                 <link href="{{ .Permalink }}?utm_source=atom_feed&utm_medium=entry_related" rel="related" type="text/html" title="{{ .Title }}" />
             {{- end }}
-            <id>urn:uuid:{{ .File.UniqueID }}</id>
+            {{ with .Params.Id }}
+                <id>{{ . | plainify }}</id>
+            {{ else }}
+                {{ with .Param "feed" }}
+                    {{ if eq .item_id "uuid" }}
+                        {{ $uuid := (substr $page.File.UniqueID 0 8) }}
+                        {{ $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 8 4) }}
+                        {{ $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 12 4) }}
+                        {{ $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 16 4) }}
+                        {{ $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 20 12) }}
+                        <id>urn:uuid:{{ $uuid }}</id>
+                    {{ else }}
+                        <id>{{ $page.Permalink }}</id>
+                    {{ end }}
+                {{ end }}
+            {{ end }}
             {{ $authors := "" }}
             {{ with .Params.author }}
                 {{ $authors = . }}

@@ -85,7 +85,22 @@
                 {{- range first 5 (site.RegularPages.Related .) }}
                     <atom:link href="{{ .Permalink }}?utm_source=rss_feed" rel="related" type="text/html" title="{{ .Title }}" />
                 {{- end }}
-                <guid isPermaLink="false">urn:uuid:{{ .File.UniqueID }}</guid>
+                {{ with .Params.Id }}
+                    <guid isPermaLink="false">{{ . | plainify }}</guid>
+                {{ else }}
+                    {{ with .Param "feed" }}
+                        {{ if eq .item_id "uuid" }}
+                            {{ $uuid := (substr $page.File.UniqueID 0 8) }}
+                            {{ $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 8 4) }}
+                            {{ $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 12 4) }}
+                            {{ $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 16 4) }}
+                            {{ $uuid = printf `%s-%s` $uuid (substr $page.File.UniqueID 20 12) }}
+                            <guid isPermaLink="false">urn:uuid:{{ $uuid }}</guid>
+                        {{ else }}
+                            <guid>{{ $page.Permalink }}</guid>
+                        {{ end }}
+                    {{ end }}
+                {{ end }}
                 {{ with .Params.author -}}
                     {{- range . -}} <!-- Assuming the author front-matter to be a list -->
                         {{ if .email -}}
