@@ -74,7 +74,7 @@ Using the _Hugo Web Feeds_ theme, the default file name for RSS feeds is automat
 
 ### Prerequisites
 
-As web feeds are not intended for direct consumption without using another peace of software (see [news aggregator](https://en.wikipedia.org/wiki/News_aggregator)), _Hugo Web Feeds_ is a supplementary theme that will support other themes by only creating the required additional plain text files.
+As web feeds are not intended for direct consumption without using another piece of software (see [news aggregator](https://en.wikipedia.org/wiki/News_aggregator)), _Hugo Web Feeds_ is a supplementary theme that will support other themes by only creating the required additional plain text files.
 
 That means you first need to install and configure a regular Hugo theme that will generate real content structures and HTML pages for your site.
 
