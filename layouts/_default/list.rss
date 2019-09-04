@@ -45,6 +45,7 @@
         {{- end }}
         {{- $image_name := "*featured*" -}}
         {{- $banner_image_name := "*banner*" -}}
+        {{- $avatar_image_name := "*avatar*" -}}
         {{ with .Param "feed" }}
             {{/* For this to work, the $logo file should be present in the assets/ directory */}}
             {{- $logo := .logo | default (.logo_square | default "logo.svg") -}}
@@ -64,6 +65,9 @@
 
             {{/* For this to work, the $banner_image_name file should be present in the content item directory */}}
             {{- $banner_image_name = .banner_image_name | default $banner_image_name -}}
+
+            {{/* For this to work, the $avatar_image_name file should be present in the author directory */}}
+            {{- $avatar_image_name = .avatar_image_name | default $avatar_image_name -}}
         {{ end }}
         {{ with site.Author.email -}}
             <managingEditor>

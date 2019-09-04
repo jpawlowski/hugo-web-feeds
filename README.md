@@ -169,10 +169,10 @@ RSS feeds will need to be sent using this `Content-Type:`:
 Content-Type: application/rss+xml; charset=UTF-8
 ```
 
-JSON feeds will likely be okay already as they are no different from other JSON files using this `Content-Type:`:
+JSON feeds currently do not have an officially confirmed MIME type. However, based on [RFC 6839](https://tools.ietf.org/html/rfc6839#page-4) and [JSON Feed Pull Request #32](https://github.com/brentsimmons/JSONFeed/pull/32), this `Content-Type:` is the most logical to assume:
 
 ```http
-Content-Type: application/json; charset=UTF-8
+Content-Type: application/feed+json; charset=UTF-8
 ```
 
 If this does not look exactly like this (even if the [`charset` setting](https://www.w3.org/International/articles/http-charset/) was missing), you will need to tweak the configuration of your web server. This depends on the software you use. Some examples and hints can be found below.
@@ -190,6 +190,10 @@ Add header definitions to your `netlify.toml` file like this:
   for = "*.rss"
   [headers.values]
     Content-Type = "application/rss+xml; charset=UTF-8"
+[[headers]]
+  for = "*feed.json"
+  [headers.values]
+    Content-Type = "application/feed+json; charset=UTF-8"
 ```
 
 To learn more about custom headers on Netlify, [go to the docs](https://www.netlify.com/docs/headers-and-basic-auth/) or read [this](https://www.netlify.com/blog/2017/10/17/introducing-structured-redirects-and-headers/) blog post.
