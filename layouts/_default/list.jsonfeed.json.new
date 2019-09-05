@@ -245,7 +245,7 @@
             {{- end -}}
         {{- end -}}
         {{- $description = (cond (eq "" $description) "" ($description | markdownify | emojify)) -}}
-        {{- $content := .Content | safeHTML -}}
+        {{- $content := .Content | html -}}
         {{- $subtitle := "" -}}
         {{- with .Params.subtitle -}}
             {{- $subtitle = . -}}
