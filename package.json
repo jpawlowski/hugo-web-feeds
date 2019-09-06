@@ -16,7 +16,7 @@
     "dev": "npm run start",
     "prestart": "npm run prebuild",
     "start": "netlify-lambda serve .netlify/functions/",
-    "prebuild": "npm run clean; netlify-lambda install",
+    "prebuild": "npm run clean; netlify-lambda install .netlify/functions/",
     "build": "netlify-lambda build .netlify/functions/",
     "postbuild": "NETLIFY_FUNCTIONS=${NETLIFY_FUNCTIONS:-.netlify/build/functions}; mkdir -p ../../${NETLIFY_FUNCTIONS}; cp -nv .netlify/build/functions/*.js ../../${NETLIFY_FUNCTIONS}; exit 0",
     "clean": "rimraf .netlify/build/",
