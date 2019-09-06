@@ -1,35 +1,38 @@
 [mediaTypes."application/rss+xml"]         # overwrite existing built-in definitions
-    suffixes      = ["rss"]                # use .rss file extension
+    suffixes       = ["rss"]                # use .rss file extension
 [outputFormats.RSS]                        # overwrite existing built-in definitions
     # https://cyber.harvard.edu/rss/rss.html | http://www.rssboard.org/
-    mediaType     = "application/rss+xml"
-    baseName      = "feed"                 # generated file = <baseName>.<mediaType."application/atom+xml".suffixes[0]> = feed.rss
-    isPlainText   = false
-    rel           = "alternate"
-    isHTML        = false
-    noUgly        = true
-    permalinkable = false
+    mediaType      = "application/rss+xml"
+    baseName       = "feed"                 # generated file = <baseName>.<mediaType."application/atom+xml".suffixes[0]> = feed.rss
+    isPlainText    = true
+    rel            = "alternate"
+    isHTML         = false
+    noUgly         = true
+    permalinkable  = false
+    notAlternative = true
 
 [mediaTypes."application/atom+xml"]
-    suffixes      = ["atom"]
+    suffixes       = ["atom"]
 [outputFormats.Atom]
     # https://tools.ietf.org/html/rfc4287
-    name          = "Atom"
-    mediaType     = "application/atom+xml"
-    baseName      = "feed" # generated file = <baseName>.<mediaType."application/atom+xml".suffixes[0]> = feed.atom
-    isPlainText   = false
-    rel           = "alternate"
-    isHTML        = false
-    noUgly        = true
-    permalinkable = false
+    name           = "Atom"
+    mediaType      = "application/atom+xml"
+    baseName       = "feed" # generated file = <baseName>.<mediaType."application/atom+xml".suffixes[0]> = feed.atom
+    isPlainText    = true
+    rel            = "alternate"
+    isHTML         = false
+    noUgly         = true
+    permalinkable  = false
+    notAlternative = true
 
 [outputFormats.JSONFeed]
     # https://jsonfeed.org/
-    name          = "JSONFeed"
-    mediaType     = "application/json"
-    baseName      = "feed" # generated file = <baseName>.<mediaType."application/json".suffixes[0]> = feed.json
-    isPlainText   = false
-    rel           = "alternate"
-    isHTML        = false
-    noUgly        = true
-    permalinkable = false
+    name           = "JSONFeed"
+    mediaType      = "application/json"
+    baseName       = "feed" # generated file = <baseName>.<mediaType."application/json".suffixes[0]> = feed.json
+    isPlainText    = true
+    rel            = "alternate"
+    isHTML         = false
+    noUgly         = true
+    permalinkable  = false
+    notAlternative = true
