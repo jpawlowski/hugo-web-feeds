@@ -25,10 +25,12 @@
     permalinkable  = false
     notAlternative = true
 
+[mediaTypes."application/feed+json"]
+    suffixes       = ["json"]
 [outputFormats.JSONFeed]
     # https://jsonfeed.org/
     name           = "JSONFeed"
-    mediaType      = "application/json"
+    mediaType      = "application/feed+json"
     baseName       = "feed" # generated file = <baseName>.<mediaType."application/json".suffixes[0]> = feed.json
     isPlainText    = true
     rel            = "alternate"
