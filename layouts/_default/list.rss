@@ -22,9 +22,11 @@
         <link>{{ .Permalink }}</link>
         {{ $output_formats := .OutputFormats }}
         {{ range $output_formats -}}
-            {{- $rel := (or (and (eq "rss" (.Name | lower)) "self") "alternate") -}}
-            {{ with $output_formats.Get .Name }}
-                {{ printf `<atom:link href=%q rel=%q type=%q title=%q />` .Permalink $rel .MediaType.Type .Name | safeHTML }}
+            {{ if (or (eq (.Name | lower) "html") (eq (.Name | lower) "atom") (eq (.Name | lower) "jsonfeed") (eq (.Name | lower) "rss")) }}
+                {{- $rel := (or (and (eq "rss" (.Name | lower)) "self") "alternate") -}}
+                {{ with $output_formats.Get .Name }}
+                    {{ printf `<atom:link href=%q rel=%q type=%q title=%q />` .Permalink $rel .MediaType.Type .Name | safeHTML }}
+                {{- end -}}
             {{- end -}}
         {{- end }}
         {{- range .Translations }}
@@ -32,8 +34,10 @@
             {{- $lang := .Lang }}
             {{- $langstr := index site.Data.i18n.languages .Lang }}
             {{ range $output_formats -}}
-                {{ with $output_formats.Get .Name }}
-                    {{ printf `<atom:link href=%q rel="alternate" type=%q hreflang=%q title="[%s] %s" />` .Permalink .MediaType.Type $lang $langstr .Name | safeHTML }}
+                {{ if (or (eq (.Name | lower) "html") (eq (.Name | lower) "atom") (eq (.Name | lower) "jsonfeed") (eq (.Name | lower) "rss")) }}
+                    {{ with $output_formats.Get .Name }}
+                        {{ printf `<atom:link href=%q rel="alternate" type=%q hreflang=%q title="[%s] %s" />` .Permalink .MediaType.Type $lang $langstr .Name | safeHTML }}
+                    {{- end -}}
                 {{- end -}}
             {{- end }}
         {{- end }}
