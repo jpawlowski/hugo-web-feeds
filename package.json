@@ -18,16 +18,14 @@
     "start": "netlify-lambda serve .netlify/functions/",
     "prebuild": "npm run clean; netlify-lambda install",
     "build": "netlify-lambda build .netlify/functions/",
-    "postbuild": "NETLIFY_FUNCTIONS=${NETLIFY_FUNCTIONS:-.netlify/functions}; mkdir -p ../../${NETLIFY_FUNCTIONS}; cp -nv .netlify/build/functions/*.js ../../${NETLIFY_FUNCTIONS}; exit 0",
+    "postbuild": "NETLIFY_FUNCTIONS=${NETLIFY_FUNCTIONS:-.netlify/build/functions}; mkdir -p ../../${NETLIFY_FUNCTIONS}; cp -nv .netlify/build/functions/*.js ../../${NETLIFY_FUNCTIONS}; exit 0",
     "clean": "rimraf .netlify/build/",
     "cleanup": "npm run clean"
   },
   "author": "Julian Pawlowski <julian.pawlowski@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "dotenv": "^8.1.0",
     "netlify-lambda": "^1.6.3",
-    "request": "^2.88.0",
     "rimraf": "^3.0.0"
   }
 }
