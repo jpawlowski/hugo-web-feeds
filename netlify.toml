@@ -1,4 +1,25 @@
-# Note: This is a dummy file only, it will not work for actual Netlify CI/CD.
+# NOTE:
+# This is an example netlify.toml file you may copy
+# to your own Hugo project root directory.
+# Make sure to keep `build.functions`. If you change the value of
+# `build.functions`, make sure to also have the environment variable
+# `NETLIFY_FUNCTIONS` set to the same directory to ensure your
+# WebHub ping is going to work properly.
 
 [build]
+  command = "hugo --gc --minify -b $URL && (cd themes/web-feeds; npm install && npm run build)"
+  publish = "public"
   functions = ".netlify/build/functions"
+
+[build.environment]
+  HUGO_VERSION = "0.55.6"
+  NETLIFY_FUNCTIONS = ".netlify/build/functions"
+
+[context.production.environment]
+  HUGO_ENV = "production"
+
+[context.deploy-preview]
+  command = "hugo --gc --minify --buildFuture -b $DEPLOY_PRIME_URL && (cd themes/web-feeds; npm install && npm run build)"
+
+[context.branch-deploy]
+  command = "hugo --gc --minify -b $DEPLOY_PRIME_URL && (cd themes/web-feeds; npm install && npm run build)"
