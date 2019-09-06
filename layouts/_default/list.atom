@@ -17,31 +17,31 @@
         {{ printf `<subtitle type="html"><![CDATA[%s]]></subtitle>` . | safeHTML }}
     {{ end }}
     {{ with .OutputFormats.Get "HTML" }}
-        {{ printf `<link href=%q rel=%q type=%q title=%q />` .Permalink "alternate" .MediaType.Type .Name | safeHTML }}
+        {{ printf `<link href=%q rel=%q type=%q title=%q />` .Permalink "alternate" .MediaType.Type site.Title | safeHTML }}
     {{- end -}}
     {{ with .OutputFormats.Get "Atom" }}
-        {{ printf `<link href=%q rel=%q type=%q title=%q />` .Permalink "alternate" .MediaType.Type .Name | safeHTML }}
+        {{ printf `<link href=%q rel=%q type=%q title=%q />` .Permalink "alternate" .MediaType.Type (i18n "feed_desc_type_atom" | default "Atom/Modern feed format") | safeHTML }}
     {{- end -}}
     {{ with .OutputFormats.Get "JSONFeed" }}
-        {{ printf `<link href=%q rel=%q type=%q title=%q />` .Permalink "alternate" .MediaType.Type .Name | safeHTML }}
+        {{ printf `<link href=%q rel=%q type=%q title=%q />` .Permalink "alternate" .MediaType.Type (i18n "feed_desc_type_json" | default "JSON/Alternate feed format") | safeHTML }}
     {{- end -}}
     {{ with .OutputFormats.Get "RSS" }}
-        {{ printf `<link href=%q rel=%q type=%q title=%q />` .Permalink "self" .MediaType.Type .Name | safeHTML }}
+        {{ printf `<link href=%q rel=%q type=%q title=%q />` .Permalink "self" .MediaType.Type (i18n "feed_desc_type_rss" | default "RSS/Legacy feed format") | safeHTML }}
     {{- end -}}
     {{- range .Translations }}
         {{- $lang := .Lang }}
         {{- $langstr := index site.Data.i18n.languages .Lang }}
         {{ with .OutputFormats.Get "HTML" }}
-            {{ printf `<link href=%q rel=%q type=%q hreflang=%q title="[%s] %s" />` .Permalink "alternate" .MediaType.Type $lang $langstr .Name | safeHTML }}
+            {{ printf `<link href=%q rel=%q type=%q hreflang=%q title="[%s] %s" />` .Permalink "alternate" .MediaType.Type $lang $langstr site.Title | safeHTML }}
         {{- end -}}
         {{ with .OutputFormats.Get "Atom" }}
-            {{ printf `<link href=%q rel=%q type=%q hreflang=%q title="[%s] %s" />` .Permalink "alternate" .MediaType.Type $lang $langstr .Name | safeHTML }}
+            {{ printf `<link href=%q rel=%q type=%q hreflang=%q title="[%s] %s" />` .Permalink "alternate" .MediaType.Type $lang $langstr (i18n "feed_desc_type_atom" | default "Atom/Modern feed format") | safeHTML }}
         {{- end -}}
         {{ with .OutputFormats.Get "JSONFeed" }}
-            {{ printf `<link href=%q rel=%q type=%q hreflang=%q title="[%s] %s" />` .Permalink "alternate" .MediaType.Type $lang $langstr .Name | safeHTML }}
+            {{ printf `<link href=%q rel=%q type=%q hreflang=%q title="[%s] %s" />` .Permalink "alternate" .MediaType.Type $lang $langstr (i18n "feed_desc_type_json" | default "JSON/Alternate feed format") | safeHTML }}
         {{- end -}}
         {{ with .OutputFormats.Get "RSS" }}
-            {{ printf `<link href=%q rel=%q type=%q hreflang=%q title="[%s] %s" />` .Permalink "self" .MediaType.Type $lang $langstr .Name | safeHTML }}
+            {{ printf `<link href=%q rel=%q type=%q hreflang=%q title="[%s] %s" />` .Permalink "self" .MediaType.Type $lang $langstr (i18n "feed_desc_type_rss" | default "RSS/Legacy feed format") | safeHTML }}
         {{- end -}}
     {{- end }}
     <updated>{{ now.Format "2006-01-02T15:04:05-07:00" | safeHTML }}</updated>
