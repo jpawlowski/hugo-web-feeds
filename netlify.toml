@@ -1,0 +1,4 @@
+# Note: This is a dummy file only, it will not work for actual Netlify CI/CD.
+
+[build]
+  functions = ".netlify/build/functions"

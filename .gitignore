@@ -12,5 +12,4 @@
 *.out
 
 /.netlify/build/
-netlify.toml
 node_modules/
