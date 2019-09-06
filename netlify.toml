@@ -19,7 +19,20 @@
   HUGO_ENV = "production"
 
 [context.deploy-preview]
-  command = "hugo --gc --minify --buildFuture -b $DEPLOY_PRIME_URL && (cd themes/web-feeds; npm install && npm run build)"
+  command = "hugo --gc --minify --buildFuture -b $DEPLOY_PRIME_URL"
 
 [context.branch-deploy]
-  command = "hugo --gc --minify -b $DEPLOY_PRIME_URL && (cd themes/web-feeds; npm install && npm run build)"
+  command = "hugo --gc --minify -b $DEPLOY_PRIME_URL"
+
+[[headers]]
+  for = "*.atom"
+  [headers.values]
+    Content-Type = "application/atom+xml; charset=UTF-8"
+[[headers]]
+  for = "*.rss"
+  [headers.values]
+    Content-Type = "application/rss+xml; charset=UTF-8"
+[[headers]]
+  for = "*feed.json"
+  [headers.values]
+    Content-Type = "application/feed+json; charset=UTF-8"
