@@ -1,0 +1,13 @@
+{
+  "name": "hugo-web-feeds-netlify-functions",
+  "version": "0.0.1",
+  "private": true,
+  "description": "",
+  "main": "n/a",
+  "author": "Julian Pawlowski <julian.pawlowski@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^8.1.0",
+    "request": "^2.88.0"
+  }
+}
