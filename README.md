@@ -90,13 +90,13 @@ For easier updates of the _Hugo Web Feeds_ theme component, it is recommended to
 
 This is how:
 
-```shell
+```console
 git submodule add -b master https://github.com/jpawlowski/hugo-web-feeds.git themes/web-feeds/
 ```
 
 Now, whenever you clone a fresh copy of your own project's Git repository, you will need to make sure to also check out all submodules in use. This is an example:
 
-```shell
+```console
 git clone --recurse-submodules https://github.com/<USERNAME>/MyProject
 ```
 
@@ -108,7 +108,7 @@ I will not go into more details here. Either use a good Git GUI application or h
 
 If you simply want to go with the current version and don't care about any future update paths or code history, you may simply download a copy of the latest source code to your own project directory:
 
-```shell
+```console
 mkdir -p themes/; curl -fsSL https://github.com/jpawlowski/hugo-web-feeds/archive/master.tar.gz | tar zx -C themes/; mv themes/hugo-web-feeds-master/ themes/web-feeds/
 ```
 
