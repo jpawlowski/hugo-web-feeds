@@ -89,9 +89,9 @@
             <language>{{ . }}</language>
         {{- end -}}
         {{- $limit := (cond (le site.Config.Services.RSS.Limit 0) 65536 site.Config.Services.RSS.Limit) }}
-        {{- $feed_sections := site.Params.feedSections | default site.Params.mainSections -}}
+        {{- $feed_sections := site.Params.feed.sections | default site.Params.mainSections -}}
         {{/* Range through only the pages with a Type in $feed_sections. */}}
-        {{- $pages := where .Pages "Type" "in" $feed_sections -}}
+        {{- $pages := where site.Pages "Type" "in" $feed_sections -}}
         {{/* Remove the pages that have the disable_feed parameter set to true. */}}
         {{- $pages = where $pages ".Params.disable_feed" "!=" true -}}
         {{- range first $limit $pages }}
@@ -125,7 +125,7 @@
                     {{ end }}
                 {{ end }}
                 {{ with .Params.author -}}
-                    {{- range . -}} <!-- Assuming the author front-matter to be a list -->
+                    {{- range . -}} {{/* Assuming the author front-matter to be a list */}}
                         {{ if .email -}}
                             <author>
                                 {{- .email }}{{ with .name }} ({{ . }}){{ end -}}
@@ -203,12 +203,12 @@
                     {{ end }}
                 {{ end }}
                 {{ with site.Taxonomies }}
-                    {{ range $taxo,$_ := . }} <!-- Defaults taxos: "tags", "categories" -->
+                    {{ range $taxo,$_ := . }} {{/* Defaults taxos: "tags", "categories" */}}
                         {{ with $page.Param $taxo }}
-                            {{ $taxo_list := . }} <!-- $taxo_list will be the tags/categories list -->
+                            {{ $taxo_list := . }} {{/* $taxo_list will be the tags/categories list */}}
                             {{ with site.GetPage (printf "/%s" $taxo) }}
                                 {{ $taxonomy_page := . }}
-                                {{ range $taxo_list }} <!-- Below, assuming pretty URLs -->
+                                {{ range $taxo_list }} {{/* Below, assuming pretty URLs */}}
                                     <category domain="{{ printf "%s" $taxo | humanize }}">{{ . }}</category>
                                 {{ end }}
                             {{ end }}
